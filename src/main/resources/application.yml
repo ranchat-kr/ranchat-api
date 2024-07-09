@@ -1,0 +1,33 @@
+spring:
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_batch_fetch_size: 100
+        default_schema: ${DEFAULT_SCHEMA}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USER_NAME}
+    password: ${DATASOURCE_PASSWORD}
+    hikari:
+      pool-name: ranchat-HikariPool
+      maximum-pool-size: 10
+      connection-timeout: 3000
+      max-lifetime: 58000
+      data-source-properties:
+        socketTimeout: 3000
+        prepStmtCacheSize: 100
+        prepStmtCacheSqlLimit: 2048
+        cachePrepStmts: true
+        useServerPrepStmts: true
+        rewriteBatchedStatements: false
+        useSsl: false
+
