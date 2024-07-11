@@ -1,4 +1,14 @@
 spring:
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USER_NAME}
+      password: ${REDIS_PASSWORD}
+
   jpa:
     generate-ddl: false
     hibernate:
@@ -31,3 +41,11 @@ spring:
         rewriteBatchedStatements: false
         useSsl: false
 
+  web:
+    resources:
+      static-locations: classpath:/static/, classpath:/static/websocket-docs/
+
+application:
+  discord:
+    webhook:
+      url: ${DISCORD_WEBHOOK_URL}

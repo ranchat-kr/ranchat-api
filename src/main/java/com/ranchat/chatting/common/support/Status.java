@@ -17,6 +17,7 @@ public enum Status {
     NOT_FOUND("리소스를 찾을 수 없습니다."),
     INVALID_PARAMETER("파라미터가 올바르지 않습니다."),
     UNKNOWN("정의 되지 않은 상태입니다."),
+    UNAUTHORIZED("인증되지 않은 사용자입니다."),
     FAIL_TO_UPLOAD("파일 업로드에 실패했습니다.");
 
     private final String message;

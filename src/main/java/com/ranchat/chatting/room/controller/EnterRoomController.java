@@ -1,5 +1,6 @@
 package com.ranchat.chatting.room.controller;
 
+import com.ranchat.chatting.common.constant.TopicType;
 import com.ranchat.chatting.room.service.EnterRoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -16,13 +17,16 @@ public class EnterRoomController {
     private final EnterRoomService service;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/rooms/{roomId}/enter")
+    @MessageMapping("/v1/rooms/{roomId}/enter")
     void enter(@PathVariable Long roomId,
                @Valid @Payload Request request) {
         var message = service.enter(roomId, request.userId());
 
         message.ifPresent(m ->
-            messagingTemplate.convertAndSend("/topic/receive-message", m)
+            messagingTemplate.convertAndSend(
+                TopicType.RECEIVE_NEW_MESSAGE.endpoint().formatted(roomId),
+                m
+            )
         );
     }
 

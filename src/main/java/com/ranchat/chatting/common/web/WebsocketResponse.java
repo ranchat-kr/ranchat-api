@@ -2,12 +2,12 @@ package com.ranchat.chatting.common.web;
 
 import com.ranchat.chatting.common.support.Status;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 public class WebsocketResponse<T> {
     private Status status;
     private String message;
-    private ZonedDateTime serverDatetime;
+    private LocalDateTime serverDatetime;
     private T data;
 
     protected WebsocketResponse() {
@@ -19,7 +19,7 @@ public class WebsocketResponse<T> {
         this.status = status;
         this.message = message;
         this.data = data;
-        this.serverDatetime = ZonedDateTime.now();
+        this.serverDatetime = LocalDateTime.now();
     }
 
     public static WebsocketResponse<Void> success() {
@@ -102,7 +102,7 @@ public class WebsocketResponse<T> {
         return message;
     }
 
-    public ZonedDateTime serverDatetime() {
+    public LocalDateTime serverDatetime() {
         return serverDatetime;
     }
 

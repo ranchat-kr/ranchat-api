@@ -1,29 +1,199 @@
 asyncapi: 3.0.0
+
+
 info:
-  title: Account Service
+  title: Ranchat Websocket API
   version: 1.0.0
-  description: 'This service is in charge of processing user signups :rocket:'
+defaultContentType: application/json
+
+
+servers:
+  Websocket:
+    host: dev-api.ranchat.net
+    protocol: wss
+    description: 'websocket 연결 endpoint: wss://dev-api.ranchat.net/endpoint'
+
+
 channels:
-  userSignedup:
-    'address':'user/signedup'
+  receiveNewMessage-chaanel:
+    address: '/topic/v1/room/{roomId}/messages/new'
     messages:
-      userSignedupMessage:
-        $ref:'#/components/messages/UserSignedUp'
+      receiveNewMessage-message:
+        $ref: '#/components/messages/receiveNewMessage'
+    description: '신규 메시지가 생성되었을때 메시지를 수신한다.'
+    parameters:
+      roomId:
+        $ref: '#/components/parameters/roomId'
+
+  sendMessage-channel:
+    address: '/v1/room/{roomId}/message/send'
+    messages:
+      sendMessage-message:
+        $ref: '#/components/messages/sendMessage'
+    description: '채팅방에 메시지를 전송한다.'
+    parameters:
+      roomId:
+        $ref: '#/components/parameters/roomId'
+
+  enterRoom-channel:
+    address: '/v1/room/{roomId}/enter'
+    messages:
+      enterRoom-message:
+        $ref: '#/components/messages/enterRoom'
+    description: '채팅방에 입장한다.'
+    parameters:
+      roomId:
+        $ref: '#/components/parameters/roomId'
+
+
 operations:
-  processUserSignups:
-    'action':'receive'
+  receiveNewMessage:
+    action: receive
     channel:
-      $ref: '#/channels/userSignedup'
+      $ref: '#/channels/receiveNewMessage-chaanel'
+
+  sendMessage:
+    action: send
+    channel:
+      $ref: '#/channels/sendMessage-channel'
+
+  enterRoom:
+    action: send
+    channel:
+      $ref: '#/channels/enterRoom-channel'
+
+
 components:
   messages:
-    UserSignedUp:
+    receiveNewMessage:
+      name: receiveNewMessage
+      title: Receive new message
+      contentType: application/json
       payload:
-        type: object
-        properties:
-          displayName:
-            type: string
-            description: Name of the user
-          email:
-            type: string
-            format: email
-            description: Email of the user
+        $ref: '#/components/schemas/receiveNewMessagePayload'
+
+    sendMessage:
+      name: sendMessage
+      title: Send message
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/sendMessagePayload'
+
+    enterRoom:
+      name: enterRoom
+      title: Enter room
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/enterRoomPayload'
+
+  schemas:
+    WebsocketResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: '응답 상태'
+          enum: [ 'SUCCESS', 'FAIL' ]
+        message:
+          type: string
+          description: '응답 메시지'
+          example: '성공'
+        serverDatetime:
+          type: string
+          format: date-time
+          description: '서버 시간'
+          example: '2024-01-01T12:00:00'
+        data:
+          type: object
+
+    receiveNewMessagePayload:
+      allOf:
+        - $ref: '#/components/schemas/WebsocketResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  minimum: 1
+                  description: '메시지 id'
+                roomId:
+                  type: integer
+                  minimum: 1
+                  description: '방 id'
+                userId:
+                  $ref: '#/components/schemas/userId'
+                participantId:
+                  type: integer
+                  minimum: 1
+                  description: '참가자 id'
+                participantName:
+                  type: string
+                  description: '참가자 이름'
+                  example: '홍길동'
+                content:
+                  type: string
+                  description: '메시지 내용'
+                  example: '안녕하세요.'
+                messageType:
+                  $ref: '#/components/schemas/messageType'
+                contentType:
+                  $ref: '#/components/schemas/contentType'
+                senderType:
+                  $ref: '#/components/schemas/senderType'
+                createdAt:
+                  type: string
+                  format: date-time
+                  description: '메시지 생성 시각 format'
+                  example: '2024-01-01T12:00:00'
+
+    sendMessagePayload:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/userId'
+        content:
+          type: string
+          description: '메시지 내용'
+        contentType:
+          type: string
+          description: '콘텐츠 유형'
+          enum: [ 'PLAIN', 'HTML', 'MARKDOWN' ]
+
+    enterRoomPayload:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/userId'
+
+    userId:
+      type: string
+      description: '사용자 id'
+      example: '01909b1c-c013-785b-8599-00d7c29d8665'
+    messageType:
+      type: string
+      description: '메시지 유형'
+      enum: [ 'CHAT', 'ENTER', 'LEAVE', 'NOTICE' ]
+    contentType:
+      type: string
+      description: '콘텐츠 유형'
+      enum: [ 'TEXT', 'FILE' ]
+    senderType:
+      type: string
+      description: '발신자 유형'
+      enum: [ 'USER', 'SYSTEM' ]
+
+  securitySchemes:
+    saslScram:
+      type: scramSha256
+      description: Provide your username and password for SASL/SCRAM authentication
+    certs:
+      type: X509
+      description: Download the certificate files from service provider
+
+  parameters:
+    roomId:
+      description: '채팅방 id'
+    streetlightId:
+      description: The ID of the streetlight.

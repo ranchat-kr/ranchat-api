@@ -1,5 +1,6 @@
 package com.ranchat.chatting.message.controller;
 
+import com.ranchat.chatting.common.constant.TopicType;
 import com.ranchat.chatting.common.web.WebsocketResponse;
 import com.ranchat.chatting.message.domain.ChatMessage;
 import com.ranchat.chatting.message.service.SendMessageService;
@@ -19,14 +20,14 @@ public class SendMessageController {
     private final SendMessageService service;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @MessageMapping("/room/{roomId}/message/send")
+    @MessageMapping("/v1/room/{roomId}/message/send")
     void send(@Valid @Payload Request request,
               @DestinationVariable Long roomId) {
         var requirement = createRequirement(roomId, request);
         var message = service.send(requirement);
 
         simpMessagingTemplate.convertAndSend(
-            "/topic/v1/room/%d/messages/new".formatted(roomId),
+            TopicType.RECEIVE_NEW_MESSAGE.endpoint().formatted(roomId),
             WebsocketResponse.success(message)
         );
     }

@@ -7,6 +7,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: 'test'
+      port: 123
+      username: 'test'
+      password: 'test'
 
   datasource:
     driver-class-name: org.h2.Driver
@@ -18,3 +24,8 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type: TRACE
+
+application:
+  discord:
+    webhook:
+      url: 'test-webhook-url'
