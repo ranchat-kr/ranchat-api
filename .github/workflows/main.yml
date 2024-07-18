@@ -28,10 +28,17 @@ jobs:
         run: chmod +x gradlew
         shell: bash
 
-      - name: Build
-      - run: ./gradlew clean
-      - run: ./gradlew openapi3
-      - run: ./gradlew build
+      - name: Clean build environment
+        run: ./gradlew clean
+        shell: bash
+
+      - name: Generate OpenAPI documentation
+        run: ./gradlew openapi3
+        shell: bash
+
+      - name: Build project
+        run: ./gradlew build
+        shell: bash
 
       - name: Login to Public ECR
         uses: docker/login-action@v2
