@@ -16,7 +16,7 @@ servers:
 
 channels:
   receiveNewMessage-chaanel:
-    address: '/topic/v1/room/{roomId}/messages/new'
+    address: '/topic/v1/rooms/{roomId}/messages/new'
     messages:
       receiveNewMessage-message:
         $ref: '#/components/messages/receiveNewMessage'
@@ -26,7 +26,7 @@ channels:
         $ref: '#/components/parameters/roomId'
 
   sendMessage-channel:
-    address: '/v1/room/{roomId}/message/send'
+    address: '/v1/rooms/{roomId}/messages/send'
     messages:
       sendMessage-message:
         $ref: '#/components/messages/sendMessage'
@@ -36,7 +36,7 @@ channels:
         $ref: '#/components/parameters/roomId'
 
   enterRoom-channel:
-    address: '/v1/room/{roomId}/enter'
+    address: '/v1/rooms/{roomId}/enter'
     messages:
       enterRoom-message:
         $ref: '#/components/messages/enterRoom'

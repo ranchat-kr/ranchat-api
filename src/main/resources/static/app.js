@@ -1,37 +1,38 @@
 const roomId = 2;
 const userId = Math.floor(Math.random() * 1000000) + '-' + (+new Date());
-const domain = 'localhost:8080';
+const domain = '52.78.91.184:8080';
+// const domain = 'localhost:8080';
 
 const stompClient = new StompJs.Client({
-    brokerURL: `ws://${domain}/ranchat`
+    brokerURL: `ws://${domain}/endpoint`
 });
 
 stompClient.onConnect = async (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
 
-    await stompClient.subscribe('/topic/receive-message', (greeting) => {
-        console.log("greeting: ", greeting);
-        const message = JSON.parse(greeting.body);
-        addMessage(message);
-    });
+    // await stompClient.subscribe('/v1/room/1/message/send', (greeting) => {
+    //     console.log("greeting: ", greeting);
+    //     const message = JSON.parse(greeting.body);
+    //     addMessage(message);
+    // });
 
-    await createUser();
-    const messages = await fetchMessages(roomId);
-
-    messages.forEach((message) => {
-        addMessage(message);
-    });
+    // await createUser();
+    // const messages = await fetchMessages(roomId);
+    //
+    // messages.forEach((message) => {
+    //     addMessage(message);
+    // });
 
     const payload = {
         roomId,
         userId
     }
 
-    await stompClient.publish({
-        destination: "/app/enter",
-        body: JSON.stringify(payload)
-    });
+    // await stompClient.publish({
+    //     destination: "/app/enter",
+    //     body: JSON.stringify(payload)
+    // });
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -67,13 +68,17 @@ function disconnect() {
 
 function sendName() {
     const payload = {
-        roomId,
-        userId,
-        content: $("#name").val()
+        "userId": "0190964c-af3f-7486-8ac3-d3ff10cc1470",
+        "content": "sex",
+        "contentType": "TEXT",
     }
 
     stompClient.publish({
-        destination: "/app/send-message",
+        destination: "/test"
+    });
+
+    stompClient.publish({
+        destination: "/v1/rooms/1/messages/send",
         headers: {},
         body: JSON.stringify(payload)
     });

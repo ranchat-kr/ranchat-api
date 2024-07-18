@@ -20,7 +20,7 @@ public class SendMessageController {
     private final SendMessageService service;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @MessageMapping("/v1/room/{roomId}/message/send")
+    @MessageMapping("/v1/rooms/{roomId}/messages/send")
     void send(@Valid @Payload Request request,
               @DestinationVariable Long roomId) {
         var requirement = createRequirement(roomId, request);

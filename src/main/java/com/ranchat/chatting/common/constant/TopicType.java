@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @RequiredArgsConstructor
 public enum TopicType {
-    RECEIVE_NEW_MESSAGE("/topic/v1/room/%d/messages/new");
+    RECEIVE_NEW_MESSAGE("/topic/v1/rooms/%d/messages/new");
 
     private final String endpoint;
 }
