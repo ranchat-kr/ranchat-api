@@ -66,19 +66,19 @@ jobs:
       - run: echo Pushing the Docker image...
       - run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
 
-      - name: execute service ssh
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVICE_SSH_HOST }}
-          username: ${{ secrets.SERVICE_SSH_USERNAME }}
-          key: ${{ secrets.SERVICE_SSH_KEY }}
-          port: ${{ secrets.SERVICE_SSH_PORT }}
-          script: |
-            cd ~/${{ secrets.SERVICE_DIR }}
-            git pull
-            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
-            export SERVER_DOMAIN_NAME=${{ secrets.SERVER_DOMAIN_NAME }}
-            export RANCHAT_API_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
-            sudo -E docker compose stop
-            sudo -E docker compose pull
-            sudo -E docker compose up -d
+      # - name: execute service ssh
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.SERVICE_SSH_HOST }}
+      #     username: ${{ secrets.SERVICE_SSH_USERNAME }}
+      #     key: ${{ secrets.SERVICE_SSH_KEY }}
+      #     port: ${{ secrets.SERVICE_SSH_PORT }}
+      #     script: |
+      #       cd ~/${{ secrets.SERVICE_DIR }}
+      #       git pull
+      #       aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+      #       export SERVER_DOMAIN_NAME=${{ secrets.SERVER_DOMAIN_NAME }}
+      #       export RANCHAT_API_IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
+      #       sudo -E docker compose stop
+      #       sudo -E docker compose pull
+      #       sudo -E docker compose up -d
