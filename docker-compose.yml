@@ -14,7 +14,7 @@ services:
       - ./data/certbot/www:/var/www/certbot
     environment:
       - TZ=Asia/Seoul
-      - SERVER_NAME=${SERVER_NAME}
+      - SERVER_DOMAIN_NAME=${SERVER_DOMAIN_NAME}
     command: /bin/bash -c "envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     depends_on:
       - api
