@@ -74,6 +74,7 @@ jobs:
           key: ${{ secrets.SERVICE_SSH_KEY }}
           port: ${{ secrets.SERVICE_SSH_PORT }}
           script: |
+            cd ~/${{ secrets.SERVICE_DIR }}
             git pull
             aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
             sudo -E docker compose stop
