@@ -66,9 +66,12 @@ jobs:
       - run: echo Pushing the Docker image...
       - run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
 
-      # - run: echo update ecs service...
-      # - run: aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ secrets.SCHEDULE_SERVICE_NAME_MAIN }} --force-new-deployment
-      # - run: aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ secrets.ADMIN_SERVICE_NAME_MAIN }} --force-new-deployment
-      # - run: aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ secrets.USER_SERVICE_NAME_MAIN }} --force-new-deployment
-      # - run: aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ secrets.DEVICE_SERVICE_NAME_MAIN }} --force-new-deployment
-      # - run: aws ecs update-service --cluster ${{ env.CLUSTER_NAME }} --service ${{ secrets.INTERNAL_SERVICE_NAME_MAIN }} --force-new-deployment
+      - name: execute service ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVICE_SSH_HOST }}
+          username: ${{ secrets.SERVICE_SSH_USERNAME }}
+          key: ${{ secrets.SERVICE_SSH_KEY }}
+          port: ${{ secrets.SERVICE_SSH_PORT }}
+          script: |
+            echo "I am Test"
