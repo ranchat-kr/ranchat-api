@@ -45,3 +45,6 @@ out/
 
 ## env
 *.env
+
+## Certbot
+/data/certbot/
