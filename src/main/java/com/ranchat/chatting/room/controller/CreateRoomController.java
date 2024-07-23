@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/rooms")
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class CreateRoomController {
     ) {
         public CreateRoomService.Requirement toRequirement() {
             return new CreateRoomService.Requirement(
-                userId,
+                List.of(userId),
                 title,
                 roomType
             );

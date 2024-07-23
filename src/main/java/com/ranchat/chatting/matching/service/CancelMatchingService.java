@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ApplyMatchingService {
+public class CancelMatchingService {
     private final MatchingRepository matchingRepository;
 
-    public void applyMatching(String userId) {
-        matchingRepository.addUser(userId);
+    public void cancel(String userId) {
+        matchingRepository.deleteUser(userId);
     }
 }

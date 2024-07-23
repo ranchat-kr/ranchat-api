@@ -15,7 +15,7 @@ servers:
 
 
 channels:
-  receiveNewMessage-chaanel:
+  receiveNewMessage-channel:
     address: '/topic/v1/rooms/{roomId}/messages/new'
     messages:
       receiveNewMessage-message:
@@ -45,12 +45,35 @@ channels:
       roomId:
         $ref: '#/components/parameters/roomId'
 
+  applyMatching-channel:
+    address: '/v1/matching/apply'
+    description: '매칭을 신청한다.'
+    messages:
+      applyMatching-message:
+        $ref: '#/components/messages/applyMatching'
+  
+  cancelMatching-channel:
+    address: '/v1/matching/cancel'
+    description: '매칭을 취소한다.'
+    messages:
+      cancelMatching-message:
+        $ref: '#/components/messages/cancelMatching'
+
+  successMatching-channel:
+    address: '/user/{userId}/queue/v1/matching/success'
+    description: '매칭이 성공시 RoomId를 반환한다.'
+    messages:
+      successMatching-message:
+        $ref: '#/components/messages/successMatching'
+    parameters:
+      userId:
+        $ref: '#/components/parameters/userId'
 
 operations:
   receiveNewMessage:
     action: receive
     channel:
-      $ref: '#/channels/receiveNewMessage-chaanel'
+      $ref: '#/channels/receiveNewMessage-channel'
 
   sendMessage:
     action: send
@@ -62,6 +85,20 @@ operations:
     channel:
       $ref: '#/channels/enterRoom-channel'
 
+  applyMatching:
+    action: send
+    channel:
+        $ref: '#/channels/applyMatching-channel'
+        
+  cancelMatching:
+    action: send
+    channel:
+        $ref: '#/channels/cancelMatching-channel'
+
+  successMatching:
+    action: receive
+    channel:
+      $ref: '#/channels/successMatching-channel'
 
 components:
   messages:
@@ -85,6 +122,27 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/enterRoomPayload'
+
+    applyMatching:
+      name: applyMatching
+      title: Apply matching
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/applyMatchingPayload'
+          
+    cancelMatching:
+      name: cancelMatching
+      title: Cancel matching
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/cancelMatchingPayload'
+
+    successMatching:
+      name: successMatching
+      title: Success matching
+      contentType: application/json
+      payload:
+          $ref: '#/components/schemas/successMatchingPayload'
 
   schemas:
     WebsocketResponse:
@@ -167,6 +225,26 @@ components:
         userId:
           $ref: '#/components/schemas/userId'
 
+    applyMatchingPayload:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/userId'
+    
+    cancelMatchingPayload:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/userId'
+
+    successMatchingPayload:
+      type: object
+      properties:
+        roomId:
+          type: integer
+          minimum: 1
+          description: '방 id'
+    
     userId:
       type: string
       description: '사용자 id'
@@ -195,5 +273,5 @@ components:
   parameters:
     roomId:
       description: '채팅방 id'
-    streetlightId:
-      description: The ID of the streetlight.
+    userId:
+      description: '사용자 id'

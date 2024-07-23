@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.MDC;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.validation.BindException;
@@ -20,8 +21,9 @@ import static com.ranchat.chatting.common.support.ExceptionUtils.getMostSpecific
 @RequiredArgsConstructor
 @Slf4j
 public class WebSocketExceptionHandler {
-    private static final String ERROR_QUEUE_DESTINATION = "/queue/errors";
+    private static final String ERROR_QUEUE_DESTINATION = "/queue/v1/errors";
     private final ErrorNotificationSender errorNotificationSender;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageExceptionHandler({
         ApplicationException.class,
@@ -76,6 +78,7 @@ public class WebSocketExceptionHandler {
     WebsocketResponse<Void> handleBadRequestException(Exception e,
                                                       StompHeaderAccessor stompHeaderAccessor) {
         logWithBaseFormat(e, stompHeaderAccessor, false);
+
         return WebsocketResponse.fail(e.getMessage());
     }
 
