@@ -24,9 +24,7 @@ public class WebSocketEventListener {
     public void handleSessionConnected(SessionConnectEvent event) {
         var headerAccessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
         var sessionId = headerAccessor.getSessionId();
-        var userId = headerAccessor.getNativeHeader("userId")
-            .stream()
-            .findFirst()
+        var userId = Optional.ofNullable(headerAccessor.getFirstNativeHeader("userId"))
             .orElseThrow(() -> new BadRequestException(Status.UNAUTHORIZED, "header에 userId가 필요합니다."));
 
         webSocketSessionRepository.save(userId, sessionId);

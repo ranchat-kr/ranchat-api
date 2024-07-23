@@ -16,9 +16,6 @@ public class ApplyMatchingController {
 
     @MessageMapping("/v1/matching/apply")
     void applyMatching(Request request) {
-        if (true) {
-            throw new IllegalArgumentException("예외가 발생했습니다.");
-        }
         service.applyMatching(request.userId());
     }
 
