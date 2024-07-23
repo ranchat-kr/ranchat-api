@@ -1,8 +1,14 @@
 package com.ranchat.chatting.matching.repository;
 
+import java.util.List;
+
 public interface MatchingRepository {
 
-    void addParticipant(String participantId);
+    List<String> findWaitingUsers();
 
-    void deleteParticipant(String participantId);
+    void addUser(String userId);
+
+    void deleteUsers(List<String> userId);
+
+    void deleteUser(String userId);
 }

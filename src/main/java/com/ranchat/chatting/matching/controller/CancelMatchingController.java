@@ -1,25 +1,22 @@
 package com.ranchat.chatting.matching.controller;
 
 import com.ranchat.chatting.matching.service.ApplyMatchingService;
-import com.ranchat.chatting.message.domain.ChatMessage;
+import com.ranchat.chatting.matching.service.CancelMatchingService;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/v1/match")
 @RequiredArgsConstructor
-public class ApplyMatchingController {
-    private final ApplyMatchingService service;
+public class CancelMatchingController {
+    private final CancelMatchingService service;
 
-    @MessageMapping("/v1/matching/apply")
+    @MessageMapping("/v1/matching/cancel")
     void applyMatching(Request request) {
-        if (true) {
-            throw new IllegalArgumentException("예외가 발생했습니다.");
-        }
-        service.applyMatching(request.userId());
+        service.cancel(request.userId());
     }
 
     record Request(

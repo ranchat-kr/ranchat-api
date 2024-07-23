@@ -1,5 +1,7 @@
 package com.ranchat.chatting.room.service;
 
+import com.ranchat.chatting.common.support.Status;
+import com.ranchat.chatting.exception.BadRequestException;
 import com.ranchat.chatting.room.domain.ChatParticipant;
 import com.ranchat.chatting.room.domain.ChatRoom;
 import com.ranchat.chatting.room.repository.ChatRoomRepository;
@@ -9,27 +11,36 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.ranchat.chatting.common.support.Status.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class CreateRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
 
-    public void create(Requirement requirement) {
-        var user  = userRepository.findById(requirement.userId()).orElseThrow();
-        var participant = new ChatParticipant(user.id(), user.name());
+    public long create(Requirement requirement) {
+        var users  = userRepository.findAllById(requirement.userIds());
+
+        if (users.isEmpty()) {
+            throw new BadRequestException(USER_NOT_FOUND);
+        }
+
+        var participants = users.stream()
+            .map(user -> new ChatParticipant(user.id(), user.name()))
+            .toList();
         var chattingRoom = new ChatRoom(
             requirement.title(),
             requirement.roomType(),
-            List.of(participant)
+            participants
         );
 
-        chattingRoom.enter(user);
-        chatRoomRepository.save(chattingRoom);
+        return chatRoomRepository.save(chattingRoom)
+            .id();
     }
 
     public record Requirement(
-        String userId,
+        List<String> userIds,
         String title,
         ChatRoom.RoomType roomType
     ) {
