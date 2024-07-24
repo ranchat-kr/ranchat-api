@@ -29,8 +29,6 @@ services:
     expose:
       - "8080"
     env_file: .env
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
 
   certbot:
     container_name: certbot
