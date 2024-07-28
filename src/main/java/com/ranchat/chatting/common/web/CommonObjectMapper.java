@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
 
@@ -51,6 +52,12 @@ public class CommonObjectMapper extends ObjectMapper {
                 LocalTime.class,
                 new LocalTimeSerializer(
                     DateTimeFormatter.ofPattern("HH:mm:ss")
+                )
+            );
+            addSerializer(
+                LocalDateTime.class,
+                new LocalDateTimeSerializer(
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
                 )
             );
             addSerializer(

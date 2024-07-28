@@ -1,10 +1,14 @@
 const roomId = 1;
-const userId = "0190964c-af3f-7486-8ac3-d3ff10cc1470";
-// const domain = '52.78.91.184:8080';
-const domain = 'localhost:8080';
+// const userId = "0190964c-af3f-7486-8ac3-d3ff10cc1470"; // test1
+const userId = "0190de4d-d720-7206-b87e-85294ea96838"; // test4
+const domain = 'dev-api.ranchat.net';
+// const domain = 'localhost:8080';
+const brokerUrl = `ws://${domain}/endpoint`;
+// const brokerUrl = `ws://${domain}/endpoint`;
+
 
 const stompClient = new StompJs.Client({
-    brokerURL: `ws://${domain}/endpoint`,
+    brokerURL: brokerUrl,
     debug: function (str) {
         console.log(str);
     },
