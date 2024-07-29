@@ -28,6 +28,7 @@ spring:
     username: ${DATASOURCE_USER_NAME}
     password: ${DATASOURCE_PASSWORD}
     hikari:
+      schema: ${DEFAULT_SCHEMA}
       pool-name: ranchat-HikariPool
       maximum-pool-size: 10
       connection-timeout: 3000
