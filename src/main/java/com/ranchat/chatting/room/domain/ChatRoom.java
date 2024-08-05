@@ -59,6 +59,12 @@ public class ChatRoom extends BaseEntity {
             .orElseThrow(() -> new IllegalArgumentException("참가자가 아닙니다. userId: " + userId));
     }
 
+    public List<ChatParticipant> otherParticipants(String userId) {
+        return participants.stream()
+            .filter(participant -> !participant.userId().equals(userId))
+            .toList();
+    }
+
     public boolean isParticipant(String userId) {
         return participants.stream()
             .map(ChatParticipant::userId)
