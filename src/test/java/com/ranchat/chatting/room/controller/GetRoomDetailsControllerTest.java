@@ -13,10 +13,13 @@ import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.ranchat.chatting.common.ApiDocumentUtils.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 
 class GetRoomDetailsControllerTest extends ControllerTestContext {
     private static final String TAG = Tags.CHAT_ROOM.tagName();
@@ -27,7 +30,7 @@ class GetRoomDetailsControllerTest extends ControllerTestContext {
 
     @Test
     void success() {
-        Mockito.when(service.get(anyLong()))
+        Mockito.when(service.get(anyLong(), any()))
             .thenReturn(new GetRoomDetailsService.RoomDetails(
                 1L,
                 "방 제목",
@@ -42,6 +45,7 @@ class GetRoomDetailsControllerTest extends ControllerTestContext {
             ));
 
         given()
+            .param("userId", "uuid")
             .when()
             .get("/v1/rooms/{roomId}", 1L)
             .then()
@@ -54,6 +58,9 @@ class GetRoomDetailsControllerTest extends ControllerTestContext {
                         .description(DESCRIPTION),
                     preprocessRequest(),
                     preprocessResponse(),
+                    queryParameters(
+                        parameterWithName("userId").optional().description("유저 ID")
+                    ),
                     responseFields(
                         fieldsWithBasic(
                             fieldWithPath("data").type(OBJECT).description("결과 데이터"),
