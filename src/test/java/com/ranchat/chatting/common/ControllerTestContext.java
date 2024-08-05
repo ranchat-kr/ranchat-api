@@ -116,7 +116,8 @@ public class ControllerTestContext {
     protected enum Tags {
         USER("회원"),
         CHAT_ROOM("채팅방"),
-        CHAT_MESSAGE("채팅 메시지");
+        CHAT_MESSAGE("채팅 메시지"),
+        REPORT("신고");
 
         private final String tagName;
 
