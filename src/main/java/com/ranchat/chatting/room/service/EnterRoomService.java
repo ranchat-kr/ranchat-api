@@ -1,5 +1,7 @@
 package com.ranchat.chatting.room.service;
 
+import com.ranchat.chatting.common.support.Status;
+import com.ranchat.chatting.exception.BadRequestException;
 import com.ranchat.chatting.message.domain.ChatMessage;
 import com.ranchat.chatting.message.repository.ChatMessageRepository;
 import com.ranchat.chatting.message.vo.ChatMessageVo;
@@ -11,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static com.ranchat.chatting.common.support.Status.ROOM_NOT_FOUND;
+import static com.ranchat.chatting.common.support.Status.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class EnterRoomService {
@@ -21,17 +26,18 @@ public class EnterRoomService {
     @Transactional
     public Optional<ChatMessageVo> enter(long roomId,
                                          String userId) {
-        var room = chatRoomRepository.findById(roomId).orElseThrow();
-        var user = userRepository.findById(userId).orElseThrow();
+        var room = chatRoomRepository.findById(roomId)
+            .orElseThrow(() -> new BadRequestException(ROOM_NOT_FOUND));
+        var user = userRepository.findById(userId)
+            .orElseThrow(() -> new BadRequestException(USER_NOT_FOUND));
+        var participant = room.getParticipant(user.id());
 
-        if (room.isParticipant(user.id())) {
+        var existMessage = chatMessageRepository.findEnterMessage(roomId, participant.id());
+
+        if (existMessage.isPresent()) {
             return Optional.empty();
         }
 
-        room.enter(user);
-        chatRoomRepository.save(room);
-
-        var participant = room.getParticipant(user.id());
         var message = new ChatMessage(
             roomId,
             participant.id(),
