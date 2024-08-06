@@ -52,11 +52,23 @@ public class ChatRoom extends BaseEntity {
         );
     }
 
+    public void exit(User user) {
+        var participant = getParticipant(user.id());
+
+        participants.remove(participant);
+    }
+
     public ChatParticipant getParticipant(String userId) {
         return participants.stream()
             .filter(participant -> participant.userId().equals(userId))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("참가자가 아닙니다. userId: " + userId));
+    }
+
+    public List<ChatParticipant> otherParticipants(String userId) {
+        return participants.stream()
+            .filter(participant -> !participant.userId().equals(userId))
+            .toList();
     }
 
     public boolean isParticipant(String userId) {

@@ -1,5 +1,6 @@
 package com.ranchat.chatting.room.service;
 
+import com.ranchat.chatting.room.domain.ChatParticipant;
 import com.ranchat.chatting.room.domain.ChatRoom;
 import com.ranchat.chatting.room.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -14,10 +17,10 @@ public class GetRoomDetailsService {
     private final ChatRoomRepository roomRepository;
 
     @Transactional(readOnly = true)
-    public RoomDetails get(long roomId) {
+    public RoomDetails get(long roomId, Optional<String> userId) {
         var room = roomRepository.findById(roomId).orElseThrow();
 
-        return RoomDetails.from(room);
+        return RoomDetails.of(room, userId);
     }
 
     public record RoomDetails(
@@ -26,10 +29,17 @@ public class GetRoomDetailsService {
         ChatRoom.RoomType type,
         List<Participant> participants
     ) {
-        public static RoomDetails from(ChatRoom room) {
+        public static RoomDetails of(ChatRoom room, Optional<String> userId) {
+            var title = userId.map(room::otherParticipants)
+                .map(participants -> participants.stream()
+                    .map(ChatParticipant::name)
+                    .collect(Collectors.joining(","))
+                )
+                .orElse(room.title());
+
             return new RoomDetails(
                 room.id(),
-                room.title(),
+                title,
                 room.type(),
                 room.participants().stream()
                     .map(participant -> new Participant(
