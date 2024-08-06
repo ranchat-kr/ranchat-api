@@ -52,6 +52,12 @@ public class ChatRoom extends BaseEntity {
         );
     }
 
+    public void exit(User user) {
+        var participant = getParticipant(user.id());
+
+        participants.remove(participant);
+    }
+
     public ChatParticipant getParticipant(String userId) {
         return participants.stream()
             .filter(participant -> participant.userId().equals(userId))
