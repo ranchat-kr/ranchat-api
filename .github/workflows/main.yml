@@ -81,4 +81,4 @@ jobs:
             export RANCHAT_API_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}"
             sudo -E docker compose stop
             sudo -E docker compose pull
-            sudo -E docker compose up -d
+            sudo -E docker compose up -d --build
