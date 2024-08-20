@@ -47,7 +47,7 @@ class GetRoomDetailsControllerTest extends ControllerTestContext {
         given()
             .param("userId", "uuid")
             .when()
-            .get("/v1/rooms/{roomId}", 1L)
+            .get("/v1/rooms/{roomId}", "1")
             .then()
             .log().all()
             .apply(

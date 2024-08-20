@@ -1,6 +1,6 @@
-const roomId = 1;
+const roomId = 176;
 // const userId = "0190964c-af3f-7486-8ac3-d3ff10cc1470"; // test1
-const userId = "0190de4d-d720-7206-b87e-85294ea96838"; // test4
+const userId = "0190964c-ee3a-7e81-a1f8-231b5d97c2a1"; // test4
 const domain = 'dev-api.ranchat.net';
 // const domain = 'localhost:8080';
 const brokerUrl = `ws://${domain}/endpoint`;
@@ -58,7 +58,7 @@ stompClient.onConnect = async (frame) => {
         console.log("roomId: ", roomId);
     });
 
-    await stompClient.subscribe(`/topic/v1/rooms/174/messages/new`, (response) => {
+    await stompClient.subscribe(`/topic/v1/rooms/${roomId}/messages/new`, (response) => {
         console.log("response: ", response);
         const roomId = JSON.parse(response.body);
         console.log("roomId: ", roomId);
@@ -115,17 +115,13 @@ function disconnect() {
 
 function sendName() {
     const payload = {
-        "userId": "0190964c-af3f-7486-8ac3-d3ff10cc1470",
-        "content": "sex",
+        "userId": userId,
+        "content": "안녕 뭐하고 있어?",
         "contentType": "TEXT",
     }
 
     stompClient.publish({
-        destination: "/test"
-    });
-
-    stompClient.publish({
-        destination: "/v1/rooms/1/messages/send",
+        destination: `/v1/rooms/${roomId}/messages/send`,
         headers: {},
         body: JSON.stringify(payload)
     });

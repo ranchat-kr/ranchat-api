@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.1.2'
+    id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.2'
     id "com.epages.restdocs-api-spec" version "0.19.2"
 }
@@ -11,6 +11,8 @@ sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
@@ -50,6 +52,11 @@ dependencies {
 
     // validator
     implementation 'commons-validator:commons-validator:1.7'
+
+    // spring IO
+    implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-SNAPSHOT")
+    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
 }
 
 test {

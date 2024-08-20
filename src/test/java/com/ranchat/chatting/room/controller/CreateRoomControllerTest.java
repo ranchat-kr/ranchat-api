@@ -58,8 +58,8 @@ class CreateRoomControllerTest extends ControllerTestContext {
 
         return new CreateRoomController.Request(
             List.of(uuid),
-            Optional.of("test-room"),
-            ChatRoom.RoomType.GPT
+            ChatRoom.RoomType.GPT,
+            Optional.of("test-room")
         );
     }
 }

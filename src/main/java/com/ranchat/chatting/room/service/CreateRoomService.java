@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.ranchat.chatting.common.support.Status.USER_NOT_FOUND;
+import static com.ranchat.chatting.user.domain.User.GPT_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,17 @@ public class CreateRoomService {
 
         var participants = users.stream()
             .map(user -> new ChatParticipant(user.id(), user.name()))
-            .toList();
+            .collect(Collectors.toList());
+
+        if (requirement.roomType() == ChatRoom.RoomType.GPT) {
+            participants.add(
+                new ChatParticipant(
+                GPT_ID,
+                "Default"
+                )
+            );
+        }
+
         var chattingRoom = new ChatRoom(
             requirement.title()
                 .orElse("gpt-chat-room-%s".formatted(UUID.randomUUID().toString())),

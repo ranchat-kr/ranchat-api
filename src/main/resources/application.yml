@@ -46,6 +46,14 @@ spring:
     resources:
       static-locations: classpath:/static/, classpath:/static/websocket-docs/
 
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+        project-id: ${OPENAI_PROJECT_ID}
+
 application:
   discord:
     webhook:

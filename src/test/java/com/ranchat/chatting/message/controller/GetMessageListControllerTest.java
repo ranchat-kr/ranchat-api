@@ -48,7 +48,7 @@ class GetMessageListControllerTest extends ControllerTestContext {
             .param("size", 10)
             .param("createdAt", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
             .when()
-            .get("/v1/rooms/{roomId}/messages", 1L)
+            .get("/v1/rooms/{roomId}/messages", "1")
             .then()
             .log().all()
             .apply(

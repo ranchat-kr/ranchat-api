@@ -17,6 +17,8 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
+    public static final String GPT_ID = "GPT";
+
     @Id
     private String id;
 
