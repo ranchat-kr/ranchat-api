@@ -41,7 +41,7 @@ public class EnterRoomService {
         var message = new ChatMessage(
             roomId,
             participant.id(),
-            user.name() + "님이 입장하셨습니다.",
+            participant.name() + "님이 입장하셨습니다.",
             ChatMessage.MessageType.ENTER,
             ChatMessage.ContentType.TEXT,
             ChatMessage.SenderType.SYSTEM

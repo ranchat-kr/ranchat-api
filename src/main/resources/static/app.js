@@ -58,7 +58,7 @@ stompClient.onConnect = async (frame) => {
         console.log("roomId: ", roomId);
     });
 
-    await stompClient.subscribe(`/topic/v1/matching/success`, (response) => {
+    await stompClient.subscribe(`/topic/v1/rooms/174/messages/new`, (response) => {
         console.log("response: ", response);
         const roomId = JSON.parse(response.body);
         console.log("roomId: ", roomId);
@@ -132,21 +132,14 @@ function sendName() {
 }
 
 function test() {
-    var userIds = [
-        "0190964c-af3f-7486-8ac3-d3ff10cc1470",
-        "0190964c-ee3a-7e81-a1f8-231b5d97c2a1",
-        "0190de4d-b8da-7d8d-bc9c-880564b12e28",
-        "0190de4d-d720-7206-b87e-85294ea96838"
-    ];
+    const userId = {
+        "userId": "0190964c-ee3a-7e81-a1f8-231b5d97c2a1"
+    };
 
-    userIds.forEach(async id => {
-        stompClient.publish({
-            destination: "/v1/matching/apply",
-            headers: {userId},
-            body: JSON.stringify({userId: id})
-        });
-
-        for(let i = 0; i < 300000000; i++) {}
+    stompClient.publish({
+        destination: "/v1/rooms/174/exit",
+        headers: {},
+        body: JSON.stringify(userId)
     });
 }
 

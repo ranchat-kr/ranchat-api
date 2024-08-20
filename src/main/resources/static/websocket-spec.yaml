@@ -45,6 +45,16 @@ channels:
       roomId:
         $ref: '#/components/parameters/roomId'
 
+  exitRoom-channel:
+    address: '/v1/rooms/{roomId}/exit'
+    messages:
+      enterRoom-message:
+        $ref: '#/components/messages/exitRoom'
+    description: '채팅방에서 나간다.'
+    parameters:
+      roomId:
+        $ref: '#/components/parameters/roomId'
+
   applyMatching-channel:
     address: '/v1/matching/apply'
     description: '매칭을 신청한다.'
@@ -85,6 +95,11 @@ operations:
     channel:
       $ref: '#/channels/enterRoom-channel'
 
+  exitRoom:
+    action: send
+    channel:
+      $ref: '#/channels/exitRoom-channel'
+
   applyMatching:
     action: send
     channel:
@@ -122,6 +137,13 @@ components:
       contentType: application/json
       payload:
         $ref: '#/components/schemas/enterRoomPayload'
+
+    exitRoom:
+      name: exitRoom
+      title: Exit room
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/exitRoomPayload'
 
     applyMatching:
       name: applyMatching
@@ -220,6 +242,12 @@ components:
           enum: [ 'PLAIN', 'HTML', 'MARKDOWN' ]
 
     enterRoomPayload:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/userId'
+
+    exitRoomPayload:
       type: object
       properties:
         userId:

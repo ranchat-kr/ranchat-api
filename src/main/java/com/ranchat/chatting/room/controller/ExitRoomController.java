@@ -1,23 +1,31 @@
 package com.ranchat.chatting.room.controller;
 
-import com.ranchat.chatting.common.web.ApiResponse;
+import com.ranchat.chatting.common.constant.TopicType;
 import com.ranchat.chatting.room.service.ExitRoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
 
-@RestController
-@RequestMapping("/v1/rooms/{roomId}/exit")
+@Controller
 @RequiredArgsConstructor
 public class ExitRoomController {
     private final ExitRoomService service;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    @PostMapping
-    ApiResponse<Void> exit(@PathVariable Long roomId,
-                           @Valid @RequestBody Request request) {
-        service.exit(roomId, request.userId());
-        return ApiResponse.success();
+    @MessageMapping("/v1/rooms/{roomId}/exit")
+    void exit(@DestinationVariable Long roomId,
+              @Valid @Payload Request request) {
+        var message = service.exit(roomId, request.userId());
+
+        messagingTemplate.convertAndSend(
+            TopicType.RECEIVE_NEW_MESSAGE.endpoint().formatted(roomId),
+            message
+        );
     }
 
     record Request(

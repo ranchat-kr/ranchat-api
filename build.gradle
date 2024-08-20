@@ -78,7 +78,7 @@ openapi3 {
     def outputPath = 'src/main/resources/static/api-docs/ranchat'
     mkdir(outputPath)
 
-    servers = [{ url = "https://dev-api.ranchat.com"}, { url = "localhost:8080"}]
+    servers = [{ url = "https://dev-api.ranchat.net"}, { url = "localhost:8080"}]
     title = "Ranchat API"
     description = "Ranchat API 문서"
     version = "1.0.0"

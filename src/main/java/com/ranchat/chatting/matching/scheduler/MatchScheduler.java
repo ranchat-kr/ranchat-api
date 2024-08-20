@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -31,7 +32,9 @@ public class MatchScheduler {
             var roomId = createRoomService.create(
                 new CreateRoomService.Requirement(
                     matchedUserIds,
-                    "RandomChat-%s".formatted(UUID.randomUUID()),
+                    Optional.of(
+                        "RandomChat-%s".formatted(UUID.randomUUID())
+                    ),
                     ChatRoom.RoomType.RANDOM
                 )
             );

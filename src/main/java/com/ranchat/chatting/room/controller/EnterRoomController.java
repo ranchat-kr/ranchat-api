@@ -5,6 +5,7 @@ import com.ranchat.chatting.room.service.EnterRoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,7 +19,7 @@ public class EnterRoomController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/v1/rooms/{roomId}/enter")
-    void enter(@PathVariable Long roomId,
+    void enter(@DestinationVariable Long roomId,
                @Valid @Payload Request request) {
         var message = service.enter(roomId, request.userId());
 

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.ranchat.chatting.common.support.Status.USER_NOT_FOUND;
 
@@ -30,7 +32,8 @@ public class CreateRoomService {
             .map(user -> new ChatParticipant(user.id(), user.name()))
             .toList();
         var chattingRoom = new ChatRoom(
-            requirement.title(),
+            requirement.title()
+                .orElse("gpt-chat-room-%s".formatted(UUID.randomUUID().toString())),
             requirement.roomType(),
             participants
         );
@@ -41,7 +44,7 @@ public class CreateRoomService {
 
     public record Requirement(
         List<String> userIds,
-        String title,
+        Optional<String> title,
         ChatRoom.RoomType roomType
     ) {
     }

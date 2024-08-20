@@ -79,6 +79,7 @@ public class ChatRoom extends BaseEntity {
 
     public enum RoomType {
         RANDOM,
+        GPT,
         PUBLIC
     }
 }

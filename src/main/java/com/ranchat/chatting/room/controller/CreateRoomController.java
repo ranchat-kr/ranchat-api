@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/rooms")
@@ -17,20 +18,20 @@ public class CreateRoomController {
     private final CreateRoomService service;
 
     @PostMapping
-    ApiResponse<Void> create(Request request) {
-        service.create(request.toRequirement());
-
-        return ApiResponse.success();
+    ApiResponse<Long> create(Request request) {
+        return ApiResponse.success(
+            service.create(request.toRequirement())
+        );
     }
 
     record Request(
-        String userId,
-        String title,
+        List<String> userIds,
+        Optional<String> title,
         ChatRoom.RoomType roomType
     ) {
         public CreateRoomService.Requirement toRequirement() {
             return new CreateRoomService.Requirement(
-                List.of(userId),
+                userIds,
                 title,
                 roomType
             );
