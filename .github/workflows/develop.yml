@@ -1,17 +1,17 @@
-name: main-deploy
-run-name: main-deploy
+name: develop-deploy
+run-name: develop-deploy
 on:
   push:
-    branches: main
+    branches: develop
 
 env:
-  IMAGE_REPO_NAME: ${{ secrets.IMAGE_REPO_NAME_MAIN }}
-  IMAGE_TAG: ${{ secrets.IMAGE_TAG_MAIN }}
-  SERVER_DOMAIN_NAME: ${{ secrets.SERVER_DOMAIN_NAME_MAIN }}
-  SERVICE_SSH_HOST: ${{ secrets.SERVICE_SSH_HOST_MAIN }}
-  SERVICE_SSH_USERNAME: ${{ secrets.SERVICE_SSH_USERNAME_MAIN }}
-  SERVICE_SSH_KEY: ${{ secrets.SERVICE_SSH_KEY_MAIN }}
-  SERVICE_SSH_PORT: ${{ secrets.SERVICE_SSH_PORT_MAIN }}
+  IMAGE_REPO_NAME: ${{ secrets.IMAGE_REPO_NAME_DEVELOP }}
+  IMAGE_TAG: ${{ secrets.IMAGE_TAG_DEVELOP }}
+  SERVER_DOMAIN_NAME: ${{ secrets.SERVER_DOMAIN_NAME_DEVELOP }}
+  SERVICE_SSH_HOST: ${{ secrets.SERVICE_SSH_HOST_DEVELOP }}
+  SERVICE_SSH_USERNAME: ${{ secrets.SERVICE_SSH_USERNAME_DEVELOP }}
+  SERVICE_SSH_KEY: ${{ secrets.SERVICE_SSH_KEY_DEVELOP }}
+  SERVICE_SSH_PORT: ${{ secrets.SERVICE_SSH_PORT_DEVELOP }}
 
 jobs:
   Deploy:
