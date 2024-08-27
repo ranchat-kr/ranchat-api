@@ -8,6 +8,10 @@ env:
   IMAGE_REPO_NAME: ${{ secrets.IMAGE_REPO_NAME_DEVELOP }}
   IMAGE_TAG: ${{ secrets.IMAGE_TAG_DEVELOP }}
   DOMAIN_NAME: ${{ secrets.SERVER_DOMAIN_NAME_DEVELOP }}
+  SERVICE_SSH_HOST: ${{ secrets.SERVICE_SSH_HOST_DEVELOP }}
+  SERVICE_SSH_USERNAME: ${{ secrets.SERVICE_SSH_USERNAME_DEVELOP }}
+  SERVICE_SSH_KEY: ${{ secrets.SERVICE_SSH_KEY_DEVELOP }}
+  SERVICE_SSH_PORT: ${{ secrets.SERVICE_SSH_PORT_DEVELOP }}
 
 jobs:
   Deploy:
@@ -70,10 +74,10 @@ jobs:
       - name: execute service ssh
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVICE_SSH_HOST }}
-          username: ${{ secrets.SERVICE_SSH_USERNAME }}
-          key: ${{ secrets.SERVICE_SSH_KEY }}
-          port: ${{ secrets.SERVICE_SSH_PORT }}
+          host: ${{ env.SERVICE_SSH_HOST }}
+          username: ${{ env.SERVICE_SSH_USERNAME }}
+          key: ${{ env.SERVICE_SSH_KEY }}
+          port: ${{ env.SERVICE_SSH_PORT }}
           script: |
             cd ~/${{ secrets.SERVICE_DIR }}
             git pull
