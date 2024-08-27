@@ -1,0 +1,84 @@
+name: develop-deploy
+run-name: develop-deploy
+on:
+  push:
+    branches: develop
+
+env:
+  IMAGE_REPO_NAME: ${{ secrets.IMAGE_REPO_NAME_DEVELOP }}
+  IMAGE_TAG: ${{ secrets.IMAGE_TAG_DEVELOP }}
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: doctrine/nodejs-aws-cli:latest
+      options: --user root
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "adopt"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        shell: bash
+
+      - name: Clean build environment
+        run: ./gradlew clean
+        shell: bash
+
+      - name: Generate OpenAPI documentation
+        run: ./gradlew openapi3
+        shell: bash
+
+      - name: Build project
+        run: ./gradlew build
+        shell: bash
+
+      - name: Login to Public ECR
+        uses: docker/login-action@v2
+        with:
+          registry: public.ecr.aws
+          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - run: echo Building the Docker image...
+      - run: docker build --platform linux/arm64 -t ${{ env.IMAGE_REPO_NAME }} .  || exit 1
+      - run: docker tag ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Login to ECR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+
+      - run: echo Pushing the Docker image...
+      - run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
+
+      - name: execute service ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVICE_SSH_HOST }}
+          username: ${{ secrets.SERVICE_SSH_USERNAME }}
+          key: ${{ secrets.SERVICE_SSH_KEY }}
+          port: ${{ secrets.SERVICE_SSH_PORT }}
+          script: |
+            cd ~/${{ secrets.SERVICE_DIR }}
+            git pull
+            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+            export SERVER_DOMAIN_NAME=${{ secrets.SERVER_DOMAIN_NAME }}
+            export RANCHAT_API_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}"
+            sudo -E docker compose stop
+            sudo -E docker compose pull
+            sudo -E docker compose up -d --build
