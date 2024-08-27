@@ -51,7 +51,7 @@ spring:
       api-key: ${OPENAI_API_KEY}
       chat:
         options:
-          model: gpt-3.5-turbo
+          model: ft:gpt-4o-mini-2024-07-18:personal:ranchat-yangjae:9yJ3IonV
         project-id: ${OPENAI_PROJECT_ID}
 
 application:
