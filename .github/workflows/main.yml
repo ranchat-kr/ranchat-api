@@ -7,6 +7,7 @@ on:
 env:
   IMAGE_REPO_NAME: ${{ secrets.IMAGE_REPO_NAME_MAIN }}
   IMAGE_TAG: ${{ secrets.IMAGE_TAG_MAIN }}
+  DOMAIN_NAME: ${{ secrets.SERVER_DOMAIN_NAME_DEVELOP }}
 
 jobs:
   Deploy:
@@ -77,7 +78,7 @@ jobs:
             cd ~/${{ secrets.SERVICE_DIR }}
             git pull
             aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
-            export SERVER_DOMAIN_NAME=${{ secrets.SERVER_DOMAIN_NAME }}
+            export SERVER_DOMAIN_NAME=${{ env.SERVER_DOMAIN_NAME }}
             export RANCHAT_API_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}"
             sudo -E docker compose stop
             sudo -E docker compose pull
