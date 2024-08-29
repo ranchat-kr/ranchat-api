@@ -1,5 +1,6 @@
 package com.ranchat.chatting.exception;
 
+import com.ranchat.chatting.common.support.IpAddressExtractor;
 import com.ranchat.chatting.common.web.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
@@ -129,5 +131,28 @@ public class CommonExceptionHandler {
         errorNotificationSender.send(e);
 
         return ApiResponse.error(e.message());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ApiResponse<Void> noResourceFoundException(NoResourceFoundException e,
+                                                      HttpServletRequest request) {
+        log.error("""
+            해킹 시도 IP: %s
+            요청 URL: %s
+            """.formatted(
+            IpAddressExtractor.extract(request),
+            request.getRequestURI()
+        ));
+        errorNotificationSender.send(
+            """
+            해킹 시도 IP: %s
+            요청 URL: %s
+            """.formatted(
+                IpAddressExtractor.extract(request),
+                request.getRequestURI()
+            ));
+
+        return ApiResponse.error("요청한 리소스를 찾을 수 없습니다.");
     }
 }
