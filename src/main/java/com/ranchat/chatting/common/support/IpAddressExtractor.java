@@ -15,6 +15,6 @@ public class IpAddressExtractor {
             .stream()
             .findFirst()
             .map(ipAddress -> ipAddress.split(",")[0])
-            .orElse(null);
+            .orElseGet(request::getRemoteAddr);
     }
 }
