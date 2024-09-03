@@ -43,6 +43,7 @@ public class WebSocketExceptionHandler {
     WebsocketResponse<?> handleException(ServerException e,
                                          StompHeaderAccessor stompHeaderAccessor) {
         logWithBaseFormat(e, stompHeaderAccessor, true);
+        errorNotificationSender.send(e);
         return WebsocketResponse.custom(e.status(), e.getMessage());
     }
 
@@ -51,6 +52,7 @@ public class WebSocketExceptionHandler {
     WebsocketResponse<Void> handleException(MaxUploadSizeExceededException e,
                                             StompHeaderAccessor stompHeaderAccessor) {
         logWithBaseFormat(e, stompHeaderAccessor, false);
+        errorNotificationSender.send(e);
         return WebsocketResponse.fail("파일 최대 업로드 가능 용량을 초과했습니다.");
     }
 
@@ -59,6 +61,8 @@ public class WebSocketExceptionHandler {
     WebsocketResponse<Void> handleBindException(BindException e,
                                                 StompHeaderAccessor stompHeaderAccessor) {
         logWithBaseFormat(e, stompHeaderAccessor, false);
+        errorNotificationSender.send(e);
+
         return WebsocketResponse.fail(
             e.getBindingResult()
                 .getAllErrors()
@@ -78,6 +82,7 @@ public class WebSocketExceptionHandler {
     WebsocketResponse<Void> handleBadRequestException(Exception e,
                                                       StompHeaderAccessor stompHeaderAccessor) {
         logWithBaseFormat(e, stompHeaderAccessor, false);
+        errorNotificationSender.send(e);
 
         return WebsocketResponse.fail(e.getMessage());
     }
@@ -87,6 +92,8 @@ public class WebSocketExceptionHandler {
     WebsocketResponse<Void> handleUncaughtException(Exception e,
                                                     StompHeaderAccessor stompHeaderAccessor) {
         logWithBaseFormat(e, stompHeaderAccessor, true);
+        errorNotificationSender.send(e);
+
         return WebsocketResponse.error(e.getMessage());
     }
 
