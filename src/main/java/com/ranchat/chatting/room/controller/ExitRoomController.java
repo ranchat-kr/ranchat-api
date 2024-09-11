@@ -1,6 +1,8 @@
 package com.ranchat.chatting.room.controller;
 
 import com.ranchat.chatting.common.constant.TopicType;
+import com.ranchat.chatting.common.web.ApiResponse;
+import com.ranchat.chatting.common.web.WebsocketResponse;
 import com.ranchat.chatting.room.service.ExitRoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -24,7 +26,7 @@ public class ExitRoomController {
 
         messagingTemplate.convertAndSend(
             TopicType.RECEIVE_NEW_MESSAGE.endpoint().formatted(roomId),
-            message
+            WebsocketResponse.success(message)
         );
     }
 

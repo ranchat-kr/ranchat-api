@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class WebsocketResponse<T> {
     private Status status;
     private String message;
-    private LocalDateTime serverDatetime;
+    private LocalDateTime serverDateTime;
     private T data;
 
     protected WebsocketResponse() {
@@ -19,7 +19,7 @@ public class WebsocketResponse<T> {
         this.status = status;
         this.message = message;
         this.data = data;
-        this.serverDatetime = LocalDateTime.now();
+        this.serverDateTime = LocalDateTime.now();
     }
 
     public static WebsocketResponse<Void> success() {
@@ -103,7 +103,7 @@ public class WebsocketResponse<T> {
     }
 
     public LocalDateTime serverDatetime() {
-        return serverDatetime;
+        return serverDateTime;
     }
 
     public T data() {
