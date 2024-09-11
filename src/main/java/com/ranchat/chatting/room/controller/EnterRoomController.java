@@ -1,6 +1,8 @@
 package com.ranchat.chatting.room.controller;
 
 import com.ranchat.chatting.common.constant.TopicType;
+import com.ranchat.chatting.common.web.ApiResponse;
+import com.ranchat.chatting.common.web.WebsocketResponse;
 import com.ranchat.chatting.room.service.EnterRoomService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -27,7 +29,7 @@ public class EnterRoomController {
         message.ifPresent(m ->
             messagingTemplate.convertAndSend(
                 TopicType.RECEIVE_NEW_MESSAGE.endpoint().formatted(roomId),
-                m
+                WebsocketResponse.success(m)
             )
         );
     }
