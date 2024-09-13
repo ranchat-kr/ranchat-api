@@ -32,9 +32,7 @@ public class MatchScheduler {
             var roomId = createRoomService.create(
                 new CreateRoomService.Requirement(
                     matchedUserIds,
-                    Optional.of(
-                        "RandomChat-%s".formatted(UUID.randomUUID())
-                    ),
+                    Optional.empty(),
                     ChatRoom.RoomType.RANDOM
                 )
             );

@@ -38,7 +38,7 @@ public class CreateRoomService {
             participants.add(
                 new ChatParticipant(
                 GPT_ID,
-                "Default"
+                "GPT"
                 )
             );
         }

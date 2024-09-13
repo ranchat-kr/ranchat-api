@@ -8,9 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.time.format.DateTimeFormatter.ISO_DATE;
 
 @Table(name = "chat_rooms")
 @Entity
@@ -37,10 +40,28 @@ public class ChatRoom extends BaseEntity {
     public ChatRoom(String title,
                     RoomType type,
                     List<ChatParticipant> participants) {
-        this.title = title;
+        this.title = initTitle(title, type, participants);
         this.type = type;
         this.participants = participants;
     }
+
+    private String initTitle(String title,
+                             RoomType type,
+                             List<ChatParticipant> participants) {
+        if (type == RoomType.GPT) {
+            var now = LocalDate.now();
+            return "GPT 채팅방 %s".formatted(now.format(ISO_DATE));
+        }
+
+        if (type == RoomType.RANDOM) {
+            return participants.stream()
+                .map(ChatParticipant::name)
+                .collect(Collectors.joining(","));
+        }
+
+        return title;
+    }
+
 
     public void enter(User user) {
         if (isParticipant(user.id())) {
