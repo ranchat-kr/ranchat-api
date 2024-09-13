@@ -1,5 +1,6 @@
 package com.ranchat.chatting.room.repository;
 
+import com.querydsl.core.QueryFactory;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Wildcard;
@@ -11,6 +12,7 @@ import com.ranchat.chatting.room.domain.QChatParticipant;
 import com.ranchat.chatting.room.domain.QChatRoom;
 import com.ranchat.chatting.room.service.GetRoomListService;
 import com.ranchat.chatting.room.vo.ChatRoomSummary;
+import com.ranchat.chatting.user.domain.QUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -21,18 +23,20 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.ranchat.chatting.message.domain.QChatMessage.chatMessage;
 import static com.ranchat.chatting.room.domain.QChatParticipant.chatParticipant;
 import static com.ranchat.chatting.room.domain.QChatRoom.chatRoom;
+import static com.ranchat.chatting.user.domain.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
 public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public Page<ChatRoomSummary> findAll(GetRoomListService.Request request) {
@@ -108,8 +112,31 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
             )
         );
 
+        var myName = request.userId()
+            .map(userId -> queryFactory
+                .select(user.name)
+                .from(user)
+                .where(user.id.eq(userId))
+                .fetchOne()
+            );
+
         return new PageImpl<>(
-            items,
+            items.stream().map(
+                item -> new ChatRoomSummary(
+                    item.id(),
+                    myName.map(name -> {
+                        var title = item.title()
+                                .replace("," + name, "")
+                                .replace(name + ",", "")
+                                .replace(name, "");
+                        return title.isBlank() ? "빈 채팅방" : title;
+                        })
+                    .orElse(item.title()),
+                    item.type(),
+                    item.latestMessage(),
+                    item.latestMessageAt()
+                ))
+                .toList(),
             pageable,
             total
         );

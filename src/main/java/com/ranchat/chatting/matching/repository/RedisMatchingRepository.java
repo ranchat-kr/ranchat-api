@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Repository
 public class RedisMatchingRepository implements MatchingRepository {
     private static final String WAITING_QUEUE_PREFIX = "WAITING_QUEUE::";
-    private static final Duration QUEUE_EXPIRATION = Duration.ofSeconds(30);
+    private static final Duration QUEUE_EXPIRATION = Duration.ofSeconds(7);
     private final RedisTemplate<String, String> redisTemplate;
 
     public RedisMatchingRepository(RedisConnectionFactory redisConnectionFactory) {
