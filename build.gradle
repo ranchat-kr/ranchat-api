@@ -57,6 +57,9 @@ dependencies {
     implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-SNAPSHOT")
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
+
+    // firebase
+    implementation 'com.google.firebase:firebase-admin:9.1.1'
 }
 
 test {
