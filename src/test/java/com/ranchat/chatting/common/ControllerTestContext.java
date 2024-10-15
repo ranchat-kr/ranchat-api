@@ -1,5 +1,7 @@
 package com.ranchat.chatting.common;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +50,12 @@ public class ControllerTestContext {
 
     @Autowired
     private WebApplicationContext context;
+    @MockBean
+    private GoogleCredentials googleCredentials;
+    @MockBean
+    private FirebaseApp firebaseApp;
+
+
 
     @BeforeEach
     void setUp(RestDocumentationContextProvider restDocumentation) {
@@ -117,7 +126,8 @@ public class ControllerTestContext {
         USER("회원"),
         CHAT_ROOM("채팅방"),
         CHAT_MESSAGE("채팅 메시지"),
-        REPORT("신고");
+        REPORT("신고"),
+        APP_NOTIFICATION("앱 알림");
 
         private final String tagName;
 

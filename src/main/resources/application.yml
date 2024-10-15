@@ -61,3 +61,15 @@ application:
 
 scheduler:
   pool-size: 3
+
+google-apis:
+  service-account-credential:
+    project-id: ${GOOGLE_CREDENTIALS_PROJECT_ID}
+    private-key-id: ${GOOGLE_CREDENTIALS_PRIVATE_KEY_ID}
+    private-key: ${GOOGLE_CREDENTIALS_PRIVATE_KEY}
+    client-email: ${GOOGLE_CREDENTIALS_CLIENT_EMAIL}
+    client-id: ${GOOGLE_CREDENTIALS_CLIENT_ID}
+    auth-uri: ${GOOGLE_CREDENTIALS_AUTH_URI}
+    token-uri: ${GOOGLE_CREDENTIALS_TOKEN_URI}
+    auth-provider-x509-cert-url: ${GOOGLE_CREDENTIALS_AUTH_PROVIDER_X509_CERT_URL}
+    client-x509-cert-url: ${GOOGLE_CREDENTIALS_CLIENT_X509_CERT_URL}
