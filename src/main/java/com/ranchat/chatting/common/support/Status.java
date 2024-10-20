@@ -32,7 +32,11 @@ public enum Status {
 
     // appNotification
     APP_NOTIFICATION_NOT_FOUND("알림을 찾을 수 없습니다."),
-    ALREADY_EXISTS_APP_NOTIFICATION("이미 등록된 알림이 있습니다.");
+    ALREADY_EXISTS_APP_NOTIFICATION("이미 등록된 알림이 있습니다."),
+
+    // fcm client
+    FAIL_TO_SEND_FCM_MESSAGE("FCM 메시지 전송에 실패했습니다.");
+
 
 
     private final String message;

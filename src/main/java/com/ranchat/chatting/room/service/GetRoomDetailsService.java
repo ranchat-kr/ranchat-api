@@ -30,7 +30,7 @@ public class GetRoomDetailsService {
         List<Participant> participants
     ) {
         public static RoomDetails of(ChatRoom room, Optional<String> userId) {
-            var title = userId.map(room::otherParticipants)
+            var title = userId.map(room::getOtherParticipants)
                 .map(participants -> participants.stream()
                     .map(ChatParticipant::name)
                     .collect(Collectors.joining(","))
