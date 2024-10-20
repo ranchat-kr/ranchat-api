@@ -79,6 +79,17 @@ channels:
       userId:
         $ref: '#/components/parameters/userId'
 
+  # activateParticipant-channel:
+  activateParticipant-channel:
+    address: '/v1/rooms/{roomId}/activate-participant'
+    description: '참가자를 활성화한다.'
+    messages:
+      activateParticipant-message:
+        $ref: '#/components/messages/activateParticipant'
+    parameters:
+      roomId:
+        $ref: '#/components/parameters/roomId'
+
 operations:
   receiveNewMessage:
     action: receive
@@ -114,6 +125,11 @@ operations:
     action: receive
     channel:
       $ref: '#/channels/successMatching-channel'
+
+  activateParticipant:
+    action: send
+    channel:
+      $ref: '#/channels/activateParticipant-channel'
 
 components:
   messages:
@@ -165,6 +181,13 @@ components:
       contentType: application/json
       payload:
           $ref: '#/components/schemas/successMatchingPayload'
+
+    activateParticipant:
+      name: activateParticipant
+      title: Activate participant
+      contentType: application/json
+      payload:
+          $ref: '#/components/schemas/activateParticipantPayload'
 
   schemas:
     WebsocketResponse:
@@ -272,6 +295,12 @@ components:
           type: integer
           minimum: 1
           description: '방 id'
+
+    activateParticipantPayload:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/userId'
     
     userId:
       type: string

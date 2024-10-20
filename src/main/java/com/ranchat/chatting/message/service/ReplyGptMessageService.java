@@ -3,10 +3,12 @@ package com.ranchat.chatting.message.service;
 import com.ranchat.chatting.common.support.Status;
 import com.ranchat.chatting.exception.BadRequestException;
 import com.ranchat.chatting.message.domain.ChatMessage;
+import com.ranchat.chatting.message.exception.MessageNotFoundException;
 import com.ranchat.chatting.message.repository.ChatMessageRepository;
 import com.ranchat.chatting.message.vo.ChatMessageVo;
 import com.ranchat.chatting.room.domain.ChatRoom;
 import com.ranchat.chatting.room.domain.ChatRoom.RoomType;
+import com.ranchat.chatting.room.exception.RoomNotFoundException;
 import com.ranchat.chatting.room.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
@@ -26,9 +28,9 @@ public class ReplyGptMessageService {
     @Transactional
     public ChatMessageVo reply(long messageId) {
         var message = chatMessageRepository.findById(messageId)
-            .orElseThrow(() -> new BadRequestException(MESSAGE_NOT_FOUND));
+            .orElseThrow(MessageNotFoundException::new);
         var room = chatRoomRepository.findById(message.roomId())
-            .orElseThrow(() -> new BadRequestException(ROOM_NOT_FOUND));
+            .orElseThrow(RoomNotFoundException::new);
 
         if (room.type() != RoomType.GPT) {
             throw new BadRequestException(NOT_ALLOW_TO_SEND_GPT_MESSAGE_BY_ROOM_TYPE);

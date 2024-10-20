@@ -26,9 +26,17 @@ public class ChatParticipant extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private LocalDateTime lastSeenAt;
+
     public ChatParticipant(String userId,
                            String name) {
         this.userId = userId;
         this.name = name;
+        this.lastSeenAt = LocalDateTime.now();
+    }
+
+    public void activate() {
+        this.lastSeenAt = LocalDateTime.now();
     }
 }
