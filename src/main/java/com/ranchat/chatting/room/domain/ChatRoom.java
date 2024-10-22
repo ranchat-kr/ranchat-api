@@ -79,6 +79,13 @@ public class ChatRoom extends BaseEntity {
         participants.remove(participant);
     }
 
+    public ChatParticipant getParticipant(long participantId) {
+        return participants.stream()
+            .filter(participant -> participant.id() == participantId)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("참가자가 아닙니다. participantId: " + participantId));
+    }
+
     public ChatParticipant getParticipant(String userId) {
         return participants.stream()
             .filter(participant -> participant.userId().equals(userId))
@@ -86,7 +93,13 @@ public class ChatRoom extends BaseEntity {
             .orElseThrow(() -> new IllegalArgumentException("참가자가 아닙니다. userId: " + userId));
     }
 
-    public List<ChatParticipant> otherParticipants(String userId) {
+    public List<ChatParticipant> getOtherParticipants(long participantId) {
+        return participants.stream()
+            .filter(participant -> participant.id() != participantId)
+            .toList();
+    }
+
+    public List<ChatParticipant> getOtherParticipants(String userId) {
         return participants.stream()
             .filter(participant -> !participant.userId().equals(userId))
             .toList();
