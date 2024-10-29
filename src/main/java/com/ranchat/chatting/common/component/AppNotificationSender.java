@@ -1,5 +1,6 @@
 package com.ranchat.chatting.common.component;
 
+import com.ranchat.chatting.common.client.DiscordClient;
 import com.ranchat.chatting.common.client.FcmClient;
 import com.ranchat.chatting.exception.BadRequestException;
 import com.ranchat.chatting.message.domain.ChatMessage;
@@ -11,6 +12,7 @@ import com.ranchat.chatting.room.exception.RoomNotFoundException;
 import com.ranchat.chatting.room.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -24,7 +26,9 @@ public class AppNotificationSender {
     private final AppNotificationRepository appNotificationRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final DiscordClient discordClient;
 
+    @Transactional(readOnly = true)
     public void newMessage(long messageId) {
         var message = chatMessageRepository.findById(messageId)
             .orElseThrow(MessageNotFoundException::new);
@@ -52,7 +56,9 @@ public class AppNotificationSender {
                     message.content()
                 );
 
+                discordClient.sendMessage("알림 전송 시작: " + request);
                 fcmClient.sendMessage(request);
+                discordClient.sendMessage("알림 전송 성공: " + request);
             });
         }
     }
