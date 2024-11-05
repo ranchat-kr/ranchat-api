@@ -62,6 +62,9 @@ application:
 scheduler:
   pool-size: 3
 
+logging:
+  config: classpath:logback/logback-spring.xml
+
 google-apis:
   service-account-credential:
     project-id: ${GOOGLE_CREDENTIALS_PROJECT_ID}

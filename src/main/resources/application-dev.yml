@@ -7,3 +7,11 @@ springdoc:
   swagger-ui:
     url: /api-docs/ranchat/main.json
     path: /v1/api-docs
+
+server:
+  tomcat:
+    basedir: ./
+    accesslog:
+      max-days: 7
+      directory: ranchat-logs
+      enabled: true
