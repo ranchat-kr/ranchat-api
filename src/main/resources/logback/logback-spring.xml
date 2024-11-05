@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <property name="LOG_PATH" value="./ranchat-logs/"/>
+
+    <springProfile name="local">
+        <include resource="logback/appender/console-appender.xml"/>
+        <logger name="org.springframework.web" level="DEBUG"/>
+        <logger name="com.ranchat" level="TRACE"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="dev">
+        <include resource="logback/appender/console-appender.xml"/>
+        <include resource="logback/appender/logstash-appender.xml"/>
+
+        <logger name="org.hibernate" level="INFO"/>
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.thymeleaf" level="OFF"/>
+        <logger name="com.ranchat" level="TRACE"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="LOGSTASH"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <include resource="logback/appender/file-appender.xml"/>
+
+        <logger name="org.hibernate" level="OFF"/>
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.thymeleaf" level="OFF"/>
+        <logger name="com.ranchat" level="TRACE"/>
+
+        <root level="INFO">
+            <appender-ref ref="LOGSTASH"/>
+        </root>
+    </springProfile>
+</configuration>
