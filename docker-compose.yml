@@ -42,8 +42,8 @@ services:
   promtail:
     image: grafana/promtail:2.6.1
     volumes:
-      - ./promtail-config.yaml:/etc/promtail/config.yaml
-      - ../ranchat-logs:/ranchat/logs
+      - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml
+      - ./ranchat-logs:/ranchat/logs
     restart: always
     environment:
       ENVIRONMENT: dev
