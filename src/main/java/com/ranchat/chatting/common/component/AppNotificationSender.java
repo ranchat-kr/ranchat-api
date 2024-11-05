@@ -2,6 +2,7 @@ package com.ranchat.chatting.common.component;
 
 import com.ranchat.chatting.common.client.DiscordClient;
 import com.ranchat.chatting.common.client.FcmClient;
+import com.ranchat.chatting.common.support.ExceptionUtils;
 import com.ranchat.chatting.exception.BadRequestException;
 import com.ranchat.chatting.message.domain.ChatMessage;
 import com.ranchat.chatting.message.exception.MessageNotFoundException;
@@ -11,12 +12,14 @@ import com.ranchat.chatting.notification.repository.AppNotificationRepository;
 import com.ranchat.chatting.room.exception.RoomNotFoundException;
 import com.ranchat.chatting.room.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class AppNotificationSender {
     private final static Set<ChatMessage.SenderType> NOTIFIABLE_SENDER_TYPES = Set.of(
@@ -44,6 +47,7 @@ public class AppNotificationSender {
 
             if (appNotifications.isEmpty()) return;
 
+            log.info("알림 전송 대상: {}", appNotifications);
 
             var title = message.senderType() == ChatMessage.SenderType.ADMIN
                 ? "관리자로부터 새로운 메시지가 도착했습니다."
@@ -57,7 +61,7 @@ public class AppNotificationSender {
                 );
 
                 discordClient.sendMessage("알림 전송 시작: " + request);
-                fcmClient.sendMessage(request);
+                ExceptionUtils.ignoreException(() -> fcmClient.sendMessage(request));
                 discordClient.sendMessage("알림 전송 성공: " + request);
             });
         }
