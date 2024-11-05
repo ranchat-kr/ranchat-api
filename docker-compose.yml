@@ -26,6 +26,8 @@ services:
     restart: always
     ports:
       - "8080:8080"
+    volumes:
+      - /ranchat/logs:/ranchat/logs
     expose:
       - "8080"
     env_file: .env
@@ -43,7 +45,7 @@ services:
     image: grafana/promtail:2.6.1
     volumes:
       - ./promtail/promtail-config.yaml:/etc/promtail/config.yaml
-      - ./ranchat-logs:/ranchat/logs
+      - /ranchat/logs:/ranchat/logs
     restart: always
     environment:
       ENVIRONMENT: dev

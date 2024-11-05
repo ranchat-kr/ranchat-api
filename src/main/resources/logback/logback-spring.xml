@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
-    <property name="LOG_PATH" value="./ranchat-logs/"/>
+    <property name="LOG_PATH" value="/ranchat/logs/"/>
 
     <springProfile name="local">
         <include resource="logback/appender/console-appender.xml"/>
@@ -22,7 +22,6 @@
         <logger name="com.ranchat" level="TRACE"/>
 
         <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="LOGSTASH"/>
         </root>
     </springProfile>
