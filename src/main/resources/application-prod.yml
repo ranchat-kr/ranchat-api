@@ -10,8 +10,8 @@ springdoc:
 
 server:
   tomcat:
-    basedir: ./
+    basedir: /ranchat/
     accesslog:
       max-days: 7
-      directory: ranchat-logs
+      directory: logs
       enabled: true
