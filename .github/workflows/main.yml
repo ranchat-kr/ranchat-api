@@ -3,6 +3,7 @@ run-name: main-deploy
 on:
   push:
     branches: main
+# CI / CD 테스트 주석
 
 env:
   IMAGE_REPO_NAME: ${{ secrets.IMAGE_REPO_NAME_MAIN }}
