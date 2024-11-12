@@ -1,13 +1,14 @@
 package com.ranchat.chatting.common.component;
 
-import com.ranchat.chatting.common.client.DiscordClient;
 import com.ranchat.chatting.common.client.FcmClient;
-import com.ranchat.chatting.common.support.ExceptionUtils;
-import com.ranchat.chatting.exception.BadRequestException;
 import com.ranchat.chatting.message.domain.ChatMessage;
 import com.ranchat.chatting.message.exception.MessageNotFoundException;
 import com.ranchat.chatting.message.repository.ChatMessageRepository;
 import com.ranchat.chatting.notification.domain.AppNotification;
+import com.ranchat.chatting.notification.domain.AppNotificationHistory;
+import com.ranchat.chatting.notification.domain.AppNotificationHistory.Status;
+import com.ranchat.chatting.notification.domain.AppNotificationHistory.Type;
+import com.ranchat.chatting.notification.repository.AppNotificationHistoryRepository;
 import com.ranchat.chatting.notification.repository.AppNotificationRepository;
 import com.ranchat.chatting.room.exception.RoomNotFoundException;
 import com.ranchat.chatting.room.repository.ChatRoomRepository;
@@ -29,9 +30,9 @@ public class AppNotificationSender {
     private final AppNotificationRepository appNotificationRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
-    private final DiscordClient discordClient;
+    private final AppNotificationHistoryRepository appNotificationHistoryRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void newMessage(long messageId) {
         var message = chatMessageRepository.findById(messageId)
             .orElseThrow(MessageNotFoundException::new);
@@ -43,27 +44,68 @@ public class AppNotificationSender {
         var others = room.getOtherParticipants(message.participantId());
 
         for (var other : others) {
-            var appNotifications = appNotificationRepository.findAllActiveNotifications(other.userId());
+            var appNotifications = appNotificationRepository.findAllActiveNotifications(other.userId())
+                .stream()
+                .filter(AppNotification::allowsNotification)
+                .toList();
 
             if (appNotifications.isEmpty()) return;
-
-            log.info("알림 전송 대상: {}", appNotifications);
 
             var title = message.senderType() == ChatMessage.SenderType.ADMIN
                 ? "관리자로부터 새로운 메시지가 도착했습니다."
                 : room.getParticipant(message.participantId()).name() + "님으로부터 새로운 메시지가 도착했습니다.";
 
             appNotifications.forEach(noti -> {
+                AppNotificationHistory history = null;
                 var request = new FcmClient.Request(
                     noti.agentId(),
                     title,
                     message.content()
                 );
 
-                discordClient.sendMessage("알림 전송 시작: " + request);
-                ExceptionUtils.ignoreException(() -> fcmClient.sendMessage(request));
-                discordClient.sendMessage("알림 전송 성공: " + request);
+                try {
+                    fcmClient.sendMessage(request);
+                    if (true) {
+                        throw new RuntimeException("test 입네다.");
+                    }
+                    history = createSuccessHistory(noti, Type.SEND_MESSAGE, request);
+                } catch (Exception e) {
+                    log.error("fail to send fcm message", e);
+                    history = createFailureHistory(noti, Type.SEND_MESSAGE, e, request);
+                } finally {
+                    appNotificationHistoryRepository.save(history);
+                }
             });
         }
+    }
+
+    private AppNotificationHistory createSuccessHistory(AppNotification appNotification,
+                                                        Type historyType,
+                                                        FcmClient.Request request) {
+        return createHistory(appNotification, historyType, Status.SUCCESS, null, request);
+    }
+
+    private AppNotificationHistory createFailureHistory(AppNotification appNotification,
+                                                        Type historyType,
+                                                        Exception e,
+                                                        FcmClient.Request request) {
+        return createHistory(appNotification, historyType, Status.FAILURE, e.getMessage(), request);
+    }
+
+    private AppNotificationHistory createHistory(AppNotification appNotification,
+                                                 Type historyType,
+                                                 Status historyStatus,
+                                                 String failReason,
+                                                 FcmClient.Request request) {
+        return new AppNotificationHistory(
+            historyType,
+            historyStatus,
+            appNotification.userId(),
+            appNotification.agentId(),
+            appNotification.id(),
+            request.title(),
+            request.content(),
+            failReason
+        );
     }
 }

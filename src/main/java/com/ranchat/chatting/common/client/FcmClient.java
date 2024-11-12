@@ -5,7 +5,6 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.ranchat.chatting.common.support.Status;
-import com.ranchat.chatting.config.FcmConfiguration;
 import com.ranchat.chatting.exception.ServerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,7 @@ public class FcmClient {
         var notification = Notification
             .builder()
             .setTitle(request.title())
-            .setBody(request.body())
+            .setBody(request.content())
             .build();
 
         return Message
@@ -45,7 +44,7 @@ public class FcmClient {
     public record Request(
         String token,
         String title,
-        String body
+        String content
     ) {
     }
 }
