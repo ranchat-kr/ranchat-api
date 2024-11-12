@@ -65,9 +65,6 @@ public class AppNotificationSender {
 
                 try {
                     fcmClient.sendMessage(request);
-                    if (true) {
-                        throw new RuntimeException("test 입네다.");
-                    }
                     history = createSuccessHistory(noti, Type.SEND_MESSAGE, request);
                 } catch (Exception e) {
                     log.error("fail to send fcm message", e);
