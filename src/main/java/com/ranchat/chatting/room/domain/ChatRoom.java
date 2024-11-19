@@ -1,6 +1,7 @@
 package com.ranchat.chatting.room.domain;
 
 import com.ranchat.chatting.common.entity.BaseEntity;
+import com.ranchat.chatting.common.support.JsonUtils;
 import com.ranchat.chatting.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +12,6 @@ import lombok.experimental.Accessors;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.time.format.DateTimeFormatter.ISO_DATE;
 
@@ -54,9 +54,12 @@ public class ChatRoom extends BaseEntity {
         }
 
         if (type == RoomType.RANDOM) {
-            return participants.stream()
+            // TODO: 채팅방 이름 로직 구현2
+            var userNames = participants.stream()
                 .map(ChatParticipant::name)
-                .collect(Collectors.joining(","));
+                .toList();
+
+            return JsonUtils.stringify(userNames);
         }
 
         return title;

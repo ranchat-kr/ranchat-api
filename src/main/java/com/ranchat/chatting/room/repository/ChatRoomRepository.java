@@ -16,4 +16,5 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>, ChatR
     WHERE p.userId = :userId
     """)
     boolean existsByUserId(String userId);
+
 }

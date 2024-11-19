@@ -52,8 +52,8 @@ public class AppNotificationSender {
             if (appNotifications.isEmpty()) return;
 
             var title = message.senderType() == ChatMessage.SenderType.ADMIN
-                ? "관리자로부터 새로운 메시지가 도착했습니다."
-                : room.getParticipant(message.participantId()).name() + "님으로부터 새로운 메시지가 도착했습니다.";
+                ? "관리자 메시지"
+                : room.getParticipant(message.participantId()).name() + "님의 메시지";
 
             appNotifications.forEach(noti -> {
                 AppNotificationHistory history = null;
