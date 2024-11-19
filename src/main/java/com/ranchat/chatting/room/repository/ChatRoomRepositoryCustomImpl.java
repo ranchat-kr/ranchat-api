@@ -1,144 +1,116 @@
 package com.ranchat.chatting.room.repository;
 
-import com.querydsl.core.QueryFactory;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ranchat.chatting.message.domain.QChatMessage;
-import com.ranchat.chatting.room.domain.ChatRoom;
-import com.ranchat.chatting.room.domain.QChatParticipant;
-import com.ranchat.chatting.room.domain.QChatRoom;
-import com.ranchat.chatting.room.service.GetRoomListService;
+import com.ranchat.chatting.room.repository.projection.QChatRoomSummaryProjection;
 import com.ranchat.chatting.room.vo.ChatRoomSummary;
-import com.ranchat.chatting.user.domain.QUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.expression.spel.ast.Projection;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.sql.Timestamp;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static com.ranchat.chatting.message.domain.QChatMessage.chatMessage;
 import static com.ranchat.chatting.room.domain.QChatParticipant.chatParticipant;
 import static com.ranchat.chatting.room.domain.QChatRoom.chatRoom;
-import static com.ranchat.chatting.user.domain.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
 public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
-    private final NamedParameterJdbcTemplate jdbcTemplate;
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<ChatRoomSummary> findAll(GetRoomListService.Request request) {
-        var pageable = request.pageable();
-        var where = """
-            #{userIdEq}
-            """
-            .replace(
-                "#{userIdEq}",
-                request.userId()
-                    .map("""
-                        AND cr.id in (
-                            SELECT chat_room_id
-                            FROM chat_participants
-                            WHERE user_id = '%s'
-                        )
-                        """::formatted)
-                    .orElse("")
-            );
+    public Page<ChatRoomSummary> findJoinedChatRooms(Pageable pageable, String userId) {
+        /*
+        TIP) QueryDSL -> Native Query
+        SELECT *
+        FROM chat_messages
+        WHERE (chat_room_id, created_at) IN (SELECT chat_room_id, max(created_at)
+                                             FROM chat_messages
+                                             WHERE chat_room_id in (SELECT cr.id
+                                                                    FROM chat_rooms cr
+                                                                    JOIN chat_participants cp ON cp.chat_room_id = cr.id
+                                                                    WHERE cp.user_id = :userId)
+                                             GROUP BY chat_room_id);
+         */
+        var baseQuery = queryFactory
+            .from(chatRoom)
+            .leftJoin(chatMessage).on(chatRoom.id.eq(chatMessage.roomId))
+            .where(Expressions.list(chatMessage.roomId, chatMessage.createdAt).in(
+                JPAExpressions.select(chatMessage.roomId, chatMessage.createdAt.max())
+                    .from(chatMessage)
+                    .where(chatMessage.roomId.in(
+                        JPAExpressions.select(chatRoom.id)
+                            .from(chatRoom)
+                            .join(chatRoom.participants, chatParticipant)
+                            .where(chatParticipant.userId.eq(userId))
+                    ))
+                    .groupBy(chatMessage.roomId)
+            ));
 
-        var total = jdbcTemplate.queryForObject("""
-            SELECT COUNT(*)
-            FROM chat_rooms cr
-            WHERE 1 = 1
-            %s
-            """
-            .formatted(where),
-            new MapSqlParameterSource(),
-            Long.class
-        );
+        var total = baseQuery
+            .select(Wildcard.count)
+            .fetchOne();
 
         if (total == null || total == 0) {
             return Page.empty();
         }
 
-        var items = jdbcTemplate.query("""
-            SELECT
-                cr.id,
-                cr.title,
-                cr.room_type,
-                cm.latest_content,
-                cm.latest_created_at
-            FROM chat_rooms cr
-            LEFT JOIN (
-               SELECT chat_room_id,
-                      content as latest_content,
-                      created_at as latest_created_at
-                FROM chat_messages
-                WHERE (chat_room_id, created_at) IN (
-                    SELECT chat_room_id, MAX(created_at)
-                    FROM chat_messages
-                    GROUP BY chat_room_id
-                )
-            ) cm ON cr.id = cm.chat_room_id
-            WHERE 1 = 1
-            %s
-            ORDER BY cm.latest_created_at DESC NULLS LAST,
-                     cr.id DESC
-            LIMIT :limit OFFSET :offset
-            """
-            .formatted(where),
-            new MapSqlParameterSource()
-                .addValue("limit", pageable.getPageSize())
-                .addValue("offset", pageable.getOffset()),
-            (rs, rowNum) -> new ChatRoomSummary(
-                rs.getLong("id"),
-                rs.getString("title"),
-                ChatRoom.RoomType.valueOf(rs.getString("room_type")),
-                rs.getString("latest_content"),
-                Optional.ofNullable(rs.getTimestamp("latest_created_at"))
-                    .map(Timestamp::toLocalDateTime)
-                    .orElse(null)
+        var queryResult = baseQuery
+            .select(new QChatRoomSummaryProjection(
+                chatRoom.id,
+                chatRoom.title,
+                chatRoom.type,
+                chatMessage.content,
+                chatMessage.createdAt
+            ))
+            .orderBy(
+                chatMessage.createdAt.desc().nullsLast(),
+                chatRoom.id.desc()
             )
-        );
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
 
-        var myName = request.userId()
-            .map(userId -> queryFactory
-                .select(user.name)
-                .from(user)
-                .where(user.id.eq(userId))
-                .fetchOne()
-            );
+            // TODO: 채팅방 이름 로직 구현
+//        var participantIds = queryResult.stream()
+//            .map(ChatRoomSummaryProjection::title)
+//            .map(title -> JsonUtils.parseArray(title, Long.class))
+//            .flatMap(List::stream)
+//            .toList();
+//
+//        var participantNameMap = queryFactory
+//            .select(chatParticipant.id, chatParticipant.name)
+//            .from(chatParticipant)
+//            .where(chatParticipant.id.in(participantIds))
+//            .fetch()
+//            .stream()
+//            .collect(Collectors.toMap(
+//                tuple -> tuple.get(chatParticipant.id),
+//                tuple -> tuple.get(chatParticipant.name)
+//            ));
+//
+//        var randomChatRoomTitleMap = queryResult.stream()
+//            .map(ChatRoomSummaryProjection::title)
+//            .map(title -> JsonUtils.parseArray(title, Long.class))
+//            .map(ids -> {
+//                ids.removeIf(participantId -> ;
+//
+//                return null;
+//            })
 
-        return new PageImpl<>(
-            items.stream().map(
-                item -> new ChatRoomSummary(
-                    item.id(),
-                    myName.map(name -> {
-                        var title = item.title()
-                                .replace("," + name, "")
-                                .replace(name + ",", "")
-                                .replace(name, "");
-                        return title.isBlank() ? "빈 채팅방" : title;
-                        })
-                    .orElse(item.title()),
-                    item.type(),
-                    item.latestMessage(),
-                    item.latestMessageAt()
-                ))
-                .toList(),
-            pageable,
-            total
-        );
+        var items = queryResult.stream()
+            .map(projection -> new ChatRoomSummary(
+                projection.id(),
+                projection.title(),
+                projection.type(),
+                projection.latestMessage(),
+                projection.latestMessageAt()
+            ))
+            .toList();
+
+        return new PageImpl<>(items, pageable, total);
     }
 }

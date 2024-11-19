@@ -7,20 +7,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
-public class GetRoomListService {
+public class GetJoinedRoomListService {
     private final ChatRoomRepository roomRepository;
 
     public Page<ChatRoomSummary> get(Request request) {
-        return roomRepository.findAll(request);
+        return  roomRepository.findJoinedChatRooms(
+            request.pageable(),
+            request.userId()
+        );
     }
 
     public record Request(
         Pageable pageable,
-        Optional<String> userId
+        String userId
     ) {
     }
 }

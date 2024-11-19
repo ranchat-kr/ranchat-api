@@ -2,11 +2,8 @@ package com.ranchat.chatting.room.controller;
 
 import com.epages.restdocs.apispec.ResourceSnippetParametersBuilder;
 import com.ranchat.chatting.common.ControllerTestContext;
-import com.ranchat.chatting.message.domain.ChatMessage;
-import com.ranchat.chatting.message.service.GetMessageListService;
-import com.ranchat.chatting.message.vo.ChatMessageVo;
 import com.ranchat.chatting.room.domain.ChatRoom;
-import com.ranchat.chatting.room.service.GetRoomListService;
+import com.ranchat.chatting.room.service.GetJoinedRoomListService;
 import com.ranchat.chatting.room.vo.ChatRoomSummary;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,13 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.ranchat.chatting.common.ApiDocumentUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -31,11 +26,11 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 
-class GetRoomListControllerTest extends ControllerTestContext {
+class GetJoinedRoomListControllerTest extends ControllerTestContext {
     private static final String TAG = Tags.CHAT_ROOM.tagName();
     private static final String DESCRIPTION = Tags.CHAT_ROOM.descriptionWith("목록 조회");
     @Autowired
-    private GetRoomListService service;
+    private GetJoinedRoomListService service;
 
 
     @Test
