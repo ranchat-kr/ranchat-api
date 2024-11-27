@@ -45,45 +45,45 @@ jobs:
         run: ./gradlew build
         shell: bash
 
-      - name: Login to Public ECR
-        uses: docker/login-action@v2
-        with:
-          registry: public.ecr.aws
-          username: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # - name: Login to Public ECR
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: public.ecr.aws
+      #     username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - run: echo Building the Docker image...
-      - run: docker build --platform linux/arm64 -t ${{ env.IMAGE_REPO_NAME }} .  || exit 1
-      - run: docker tag ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
+      # - run: echo Building the Docker image...
+      # - run: docker build --platform linux/arm64 -t ${{ env.IMAGE_REPO_NAME }} .  || exit 1
+      # - run: docker tag ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Login to ECR
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+      # - name: Login to ECR
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
 
-      - run: echo Pushing the Docker image...
-      - run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
+      # - run: echo Pushing the Docker image...
+      # - run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
 
-      - name: execute service ssh
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.SERVICE_SSH_HOST }}
-          username: ${{ env.SERVICE_SSH_USERNAME }}
-          key: ${{ env.SERVICE_SSH_KEY }}
-          port: ${{ env.SERVICE_SSH_PORT }}
-          script: |
-            cd ~/${{ secrets.SERVICE_DIR }}
-            git pull
-            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
-            export SERVER_DOMAIN_NAME=${{ env.SERVER_DOMAIN_NAME }}
-            export RANCHAT_API_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}"
-            sudo -E docker compose stop
-            sudo -E docker compose pull
-            sudo -E docker compose up -d --build
+      # - name: execute service ssh
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ env.SERVICE_SSH_HOST }}
+      #     username: ${{ env.SERVICE_SSH_USERNAME }}
+      #     key: ${{ env.SERVICE_SSH_KEY }}
+      #     port: ${{ env.SERVICE_SSH_PORT }}
+      #     script: |
+      #       cd ~/${{ secrets.SERVICE_DIR }}
+      #       git pull
+      #       aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+      #       export SERVER_DOMAIN_NAME=${{ env.SERVER_DOMAIN_NAME }}
+      #       export RANCHAT_API_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}"
+      #       sudo -E docker compose stop
+      #       sudo -E docker compose pull
+      #       sudo -E docker compose up -d --build
