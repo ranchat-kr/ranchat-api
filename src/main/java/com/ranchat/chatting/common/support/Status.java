@@ -19,6 +19,7 @@ public enum Status {
     UNKNOWN("정의 되지 않은 상태입니다."),
     UNAUTHORIZED("인증되지 않은 사용자입니다."),
     FAIL_TO_UPLOAD("파일 업로드에 실패했습니다."),
+    NOT_IMPLEMENTED("구현되지 않은 기능입니다."),
 
     // room
     ROOM_NOT_FOUND("채팅방을 찾을 수 없습니다."),

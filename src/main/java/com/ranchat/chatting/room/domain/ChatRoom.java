@@ -10,10 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.time.format.DateTimeFormatter.ISO_DATE;
 
 @Table(name = "chat_rooms")
 @Entity
@@ -40,29 +39,34 @@ public class ChatRoom extends BaseEntity {
     public ChatRoom(String title,
                     RoomType type,
                     List<ChatParticipant> participants) {
-        this.title = initTitle(title, type, participants);
+        this.title = title;
         this.type = type;
         this.participants = participants;
     }
 
-    private String initTitle(String title,
-                             RoomType type,
+    public ChatRoom(RoomType type,
+                    List<ChatParticipant> participants) {
+        this.title = initTitle(type, participants);
+        this.type = type;
+        this.participants = participants;
+    }
+
+    private String initTitle(RoomType type,
                              List<ChatParticipant> participants) {
-        if (type == RoomType.GPT) {
-            var now = LocalDate.now();
-            return "GPT 채팅방 %s".formatted(now.format(ISO_DATE));
+        switch (type) {
+            case GPT -> {
+                var now = LocalDate.now();
+                return "GPT 채팅방 - %s 시작".formatted(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+            }
+            case RANDOM -> {
+                var userIds = participants.stream()
+                    .map(ChatParticipant::userId)
+                    .toList();
+
+                return JsonUtils.stringify(userIds);
+            }
+            default -> throw new IllegalArgumentException("이름 생성을 지원하지 않는 방 타입입니다. type: " + type);
         }
-
-        if (type == RoomType.RANDOM) {
-            // TODO: 채팅방 이름 로직 구현2
-            var userNames = participants.stream()
-                .map(ChatParticipant::name)
-                .toList();
-
-            return JsonUtils.stringify(userNames);
-        }
-
-        return title;
     }
 
 
@@ -112,6 +116,16 @@ public class ChatRoom extends BaseEntity {
         return participants.stream()
             .map(ChatParticipant::userId)
             .anyMatch(userId::equals);
+    }
+
+    public static ChatRoom createGptRoom(List<ChatParticipant> participants) {
+        participants.add(new ChatParticipant(User.GPT_ID, "GPT"));
+
+        return new ChatRoom(
+            null,
+            RoomType.GPT,
+            participants
+        );
     }
 
     public enum RoomType {

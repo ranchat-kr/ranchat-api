@@ -34,6 +34,7 @@ public class CreateRoomService {
             .map(user -> new ChatParticipant(user.id(), user.name()))
             .collect(Collectors.toList());
 
+
         if (requirement.roomType() == ChatRoom.RoomType.GPT) {
             participants.add(
                 new ChatParticipant(
@@ -43,14 +44,13 @@ public class CreateRoomService {
             );
         }
 
-        var chattingRoom = new ChatRoom(
-            requirement.title()
-                .orElse("gpt-chat-room-%s".formatted(UUID.randomUUID().toString())),
-            requirement.roomType(),
-            participants
-        );
+        var chatRoom = switch (requirement.roomType()) {
+            case RANDOM -> new ChatRoom(ChatRoom.RoomType.RANDOM, participants);
+            case GPT -> new ChatRoom(ChatRoom.RoomType.GPT, participants);
+            case PUBLIC -> throw new BadRequestException(Status.NOT_IMPLEMENTED);
+        };
 
-        return chatRoomRepository.save(chattingRoom)
+        return chatRoomRepository.save(chatRoom)
             .id();
     }
 
