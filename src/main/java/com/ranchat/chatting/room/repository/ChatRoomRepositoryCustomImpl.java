@@ -4,6 +4,8 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.ranchat.chatting.common.support.JsonUtils;
+import com.ranchat.chatting.room.repository.projection.ChatRoomSummaryProjection;
 import com.ranchat.chatting.room.repository.projection.QChatRoomSummaryProjection;
 import com.ranchat.chatting.room.vo.ChatRoomSummary;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.ranchat.chatting.message.domain.QChatMessage.chatMessage;
 import static com.ranchat.chatting.room.domain.QChatParticipant.chatParticipant;
@@ -73,38 +80,51 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
+        var roomIds = queryResult.stream()
+            .map(ChatRoomSummaryProjection::id)
+            .toList();
 
-            // TODO: 채팅방 이름 로직 구현
-//        var participantIds = queryResult.stream()
-//            .map(ChatRoomSummaryProjection::title)
-//            .map(title -> JsonUtils.parseArray(title, Long.class))
-//            .flatMap(List::stream)
-//            .toList();
-//
-//        var participantNameMap = queryFactory
-//            .select(chatParticipant.id, chatParticipant.name)
-//            .from(chatParticipant)
-//            .where(chatParticipant.id.in(participantIds))
-//            .fetch()
-//            .stream()
-//            .collect(Collectors.toMap(
-//                tuple -> tuple.get(chatParticipant.id),
-//                tuple -> tuple.get(chatParticipant.name)
-//            ));
-//
-//        var randomChatRoomTitleMap = queryResult.stream()
-//            .map(ChatRoomSummaryProjection::title)
-//            .map(title -> JsonUtils.parseArray(title, Long.class))
-//            .map(ids -> {
-//                ids.removeIf(participantId -> ;
-//
-//                return null;
-//            })
+        var participantNameMap = queryFactory
+            .select(chatRoom.id, chatParticipant.userId, chatParticipant.name)
+            .from(chatRoom)
+            .join(chatRoom.participants, chatParticipant)
+            .where(
+                chatParticipant.userId.ne(userId),
+                chatRoom.id.in(roomIds)
+            )
+            .fetch()
+            .stream()
+            .collect(Collectors.groupingBy(
+                tuple -> tuple.get(chatRoom.id), // Room ID를 기준으로 그룹화
+                Collectors.toMap(
+                    tuple -> tuple.get(chatParticipant.userId), // 내부 Map의 키: userId
+                    tuple -> tuple.get(chatParticipant.name)   // 내부 Map의 값: name
+                )
+            ));
+
+        var randomChatRoomTitleMap = queryResult.stream()
+            .collect(Collectors.toMap(
+                ChatRoomSummaryProjection::id,
+                room -> {
+                    var list = JsonUtils.parseArray(room.title(), String.class);
+                    list.removeIf(userId::equals);
+
+                    var participantNameByUserId = Optional.ofNullable(participantNameMap.get(room.id()))
+                        .orElse(Map.of());
+
+                    var roomTitle = list.stream()
+                        .filter(participantNameByUserId::containsKey)
+                        .map(participantNameByUserId::get)
+                        .collect(Collectors.joining(","));
+
+                    return roomTitle.isEmpty() ? "비어있는 방" : roomTitle;
+                }
+            ));
 
         var items = queryResult.stream()
             .map(projection -> new ChatRoomSummary(
                 projection.id(),
-                projection.title(),
+                randomChatRoomTitleMap.get(projection.id()),
                 projection.type(),
                 projection.latestMessage(),
                 projection.latestMessageAt()
