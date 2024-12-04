@@ -5,6 +5,7 @@ import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ranchat.chatting.common.support.JsonUtils;
+import com.ranchat.chatting.room.domain.ChatRoom;
 import com.ranchat.chatting.room.repository.projection.ChatRoomSummaryProjection;
 import com.ranchat.chatting.room.repository.projection.QChatRoomSummaryProjection;
 import com.ranchat.chatting.room.vo.ChatRoomSummary;
@@ -106,18 +107,22 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
             .collect(Collectors.toMap(
                 ChatRoomSummaryProjection::id,
                 room -> {
-                    var list = JsonUtils.parseArray(room.title(), String.class);
-                    list.removeIf(userId::equals);
+                    if (room.type() == ChatRoom.RoomType.RANDOM) {
+                        var list = JsonUtils.parseArray(room.title(), String.class);
+                        list.removeIf(userId::equals);
 
-                    var participantNameByUserId = Optional.ofNullable(participantNameMap.get(room.id()))
-                        .orElse(Map.of());
+                        var participantNameByUserId = Optional.ofNullable(participantNameMap.get(room.id()))
+                            .orElse(Map.of());
 
-                    var roomTitle = list.stream()
-                        .filter(participantNameByUserId::containsKey)
-                        .map(participantNameByUserId::get)
-                        .collect(Collectors.joining(","));
+                        var roomTitle = list.stream()
+                            .filter(participantNameByUserId::containsKey)
+                            .map(participantNameByUserId::get)
+                            .collect(Collectors.joining(","));
 
-                    return roomTitle.isEmpty() ? "비어있는 방" : roomTitle;
+                        return roomTitle.isEmpty() ? "비어있는 방" : roomTitle;
+                    }
+
+                    return room.title();
                 }
             ));
 
