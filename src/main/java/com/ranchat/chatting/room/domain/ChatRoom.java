@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class ChatRoom extends BaseEntity {
                              List<ChatParticipant> participants) {
         switch (type) {
             case GPT -> {
-                var now = LocalDate.now();
+                var now = LocalDateTime.now();
                 return "GPT 채팅방 - %s 시작".formatted(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
             }
             case RANDOM -> {
